@@ -1,1 +1,1 @@
-\\server\TTData\typingtrainer.mdb
+c:\typing\typingtrainer.mdb
