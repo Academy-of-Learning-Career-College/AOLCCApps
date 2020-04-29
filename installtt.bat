@@ -64,5 +64,5 @@ choco install -y vcredist-all
 choco install -y git
 choco install -y dotnet3.5
 echo Downloading Latest Files
-%ProgramFiles%\Git\cmd\git.exe clone https://github.com/fireball8931/AOLCCApps c:\Typing\
+"%ProgramFiles%\Git\cmd\git.exe" clone https://github.com/fireball8931/AOLCCApps c:\Typing\
 c:\Typing\part2.bat
