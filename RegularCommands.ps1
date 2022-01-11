@@ -237,7 +237,7 @@ if ($global:campus -eq 'Abbotsford') {
 	Update-ConnectToTypingTrainer
 	$printername = 'Student Lexmark Printer'
 	$drivername = 'Lexmark Printer Software G4 HBP'
-	$printerIP = '192.168.1.228'
+	$printerIP = '192.168.1.233'
 	$driverlocation = '\\192.168.1.229\ttdata\drivers'
 	$driversearch = $driverlocation + '\LexmarkPkgInstaller.exe'
 	$smbuser = 'smbguest'
