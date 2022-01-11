@@ -246,7 +246,13 @@ if ($global:campus -eq 'Abbotsford') {
 	if (!(Get-PrinterDriver -Name $drivername -ErrorAction SilentlyContinue)){ 
 		New-SmbMapping -RemotePath $driverlocation -UserName $smbuser -Password $smbpassword
 		Start-Process $driversearch
+		}
+	if (!(Get-PrinterPort -Name $printerIP -ErrorAction SilentlyContinue)){
+		Add-PrinterPort -Name $printerIP -PrinterHostAddress $printerIP
+		}
 		
+	if (!(Get-Printer -Name $printername -ErrorAction SilentlyContinue)){
+		Add-Printer -Name $printername -DriverName $drivername -PortName $printerIP
 		}
 }
 if ($global:campus -ne 'OffSite') {
