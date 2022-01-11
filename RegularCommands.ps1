@@ -305,3 +305,7 @@ Set-Service -Name WSDPrintDevice -StartupType Disabled
 Invoke-WebRequest -URI "http://fogserver./fog/client/download.php?newclient" -UseBasicParsing -OutFile 'C:\scriptfiles\fog.msi'
 #run the installer with msiexec and pass the command line args of /quiet /qn /norestart
 Start-Process -FilePath msiexec -ArgumentList @('/i','C:\fogtemp\fog.msi','/quiet','/qn','/norestart') -NoNewWindow -Wait;
+
+#Activate Office
+cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
+
