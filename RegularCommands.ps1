@@ -285,7 +285,7 @@ choco source add --source='https://choco.aolccbc.com/' --name='aolcc_hosted2'
 $source = Select-String -InputObject $chocosources -Pattern "choco-proxy"
 if ([string]::IsNullOrEmpty($source)){
 Write-Host 'AOLCC proxy Source not set, installing AOLCC source'
-choco source add -n='choco-proxy'-s='https://nexus.aolccbc.com/repository/choco-proxy/'
+choco source add --source='https://nexus.aolccbc.com/repository/choco-proxy/' --name='choco-proxy'
 }
 #install K-LiteCodecPack-Standard, Java runtime 8, ACME, and latest version of respondus lockdown browser
 choco upgrade -y k-litecodecpack-standard jre8 acme respondusldb fog
