@@ -23,24 +23,6 @@ function Set-Shortcut {
 	$Shortcut.Save()
 }
 
-
-function Get-CampusByIP {
-	$externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
-	$langleyip = '66.183.1.50'
-	$abbyip = '66.183.152.124'
-
-	if ($externalip -eq $langleyip) {
-		$global:campus = 'Langley'
-	}
-	elseif ($externalip -eq $abbyip) {
-		$global:campus = 'Abbotsford'
-	}
-	else {
-		$global:campus = 'OffSite'
-	}
-
-}
-
 function Update-ConnectToTypingTrainer {
 	if ((Test-Path -Path $global:scriptingdir) -eq $false) {
 		New-Item -Path $global:scriptingdir -Type Directory
@@ -58,15 +40,15 @@ function Update-ConnectToTypingTrainer {
 
 
 #Actual Commands File
+#check disk size
+if ((Get-Volume -DriveLetter C).SizeRemaining / (1e+9) -lt "1"){
 Write-Host Adjusting Volumes
-
 # Variable specifying the drive you want to extend
 $drive_letter = "C"
-
 # Script to get the partition sizes and then resize the volume
 $size = (Get-PartitionSupportedSize -DriveLetter $drive_letter)
 Resize-Partition -DriveLetter $drive_letter -Size $size.SizeMax
-
+}
 
 
 Write-Host Setting Registry Values
@@ -97,7 +79,7 @@ Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\mike@aolccbc
 $idlelogoffpath = "c:\scriptfiles\idlelogoff.exe"
 
 if ((Test-Path -LiteralPath $idlelogoffpath) -eq $false) {
-	wget -Uri https://www.aolccbc.com/downloads/idlelogoff.exe -OutFile $idlelogoffpath
+	Invoke-WebRequest -Uri https://www.aolccbc.com/downloads/idlelogoff.exe -OutFile $idlelogoffpath
 }
 
 $idleshortcutpath = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\idlelogoff.lnk"
@@ -196,7 +178,21 @@ if ((Test-Path -Path 'c:\defaultassociations.xml') -eq $false) {
 }
 reg add 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System' /v DefaultAssociationsConfiguration /t REG_SZ /d 'c:\defaultassociations.xml' /f
 
-Get-CampusByIP
+$externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
+$langleyip = '66.183.1.50'
+$abbyip = '66.183.152.124'
+
+if ($externalip -eq $langleyip) {
+	$global:campus = 'Langley'
+}
+elseif ($externalip -eq $abbyip) {
+	$global:campus = 'Abbotsford'
+}
+else {
+	$global:campus = 'OffSite'
+}
+
+#Get-CampusByIP
 # Typing Trainer
 if ($global:campus -eq 'Langley') {
 	$global:batchsource = $global:cloudloc + 'langley.bat'
@@ -272,15 +268,15 @@ if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\ch
 
 #choco apps
 if ($null -eq $ENV:ChocolateyInstall) {
-	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://aolccbc.com/downloads/ChocolateyInstall.ps1'))
+	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://aolccbc.com/downloads/ChocolateyInstall.ps1'))
 }
 $chocosources= choco source
 $source = Select-String -InputObject $chocosources -Pattern "aolcc_hosted2"
 if ([string]::IsNullOrEmpty($source)){
 Write-Host 'AOLCC Source not set, installing AOLCC source'
-choco source add -n='aolcc_hosted2'-s='https://choco.aolccbc.com/'
+choco source add --source='https://choco.aolccbc.com/' --name='aolcc_hosted2'
 }
-$source2 = Select-String -InputObject $chocosources -Pattern "choco-proxy"
+$source = Select-String -InputObject $chocosources -Pattern "choco-proxy"
 if ([string]::IsNullOrEmpty($source)){
 Write-Host 'AOLCC proxy Source not set, installing AOLCC source'
 choco source add -n='choco-proxy'-s='https://nexus.aolccbc.com/repository/choco-proxy/'
@@ -300,6 +296,6 @@ New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Google\Chrome' -Name 'Pro
 Set-Service -Name WSDPrintDevice -StartupType Disabled
 
 #download the client installer to C:\fogtemp\fog.msi
-#Invoke-WebRequest -URI "http://fogserver/fog/client/download.php?newclient" -UseBasicParsing -OutFile 'C:\scriptfiles\fog.msi'
+Invoke-WebRequest -URI "http://fogserver./fog/client/download.php?newclient" -UseBasicParsing -OutFile 'C:\scriptfiles\fog.msi'
 #run the installer with msiexec and pass the command line args of /quiet /qn /norestart
-#Start-Process -FilePath msiexec -ArgumentList @('/i','C:\fogtemp\fog.msi','/quiet','/qn','/norestart') -NoNewWindow -Wait;
+Start-Process -FilePath msiexec -ArgumentList @('/i','C:\fogtemp\fog.msi','/quiet','/qn','/norestart') -NoNewWindow -Wait;
