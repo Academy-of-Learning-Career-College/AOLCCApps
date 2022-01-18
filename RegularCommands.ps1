@@ -10,6 +10,8 @@ $global:ttshortcutname = 'Connect to Typing Trainer.lnk'
 $global:ttshortcutdest = $env:ALLUSERSPROFILE + '\Microsoft\Windows\Start Menu\Programs\' + $global:ttshortcutname
 
 
+Install-Module -
+
 #functions
 
 function Set-Shortcut {
@@ -183,13 +185,13 @@ $langleyip = '66.183.1.50'
 $abbyip = '66.183.152.124'
 
 if ($externalip -eq $langleyip) {
-	$global:campus = 'Langley'
+	$campus = 'Langley'
 }
 elseif ($externalip -eq $abbyip) {
-	$global:campus = 'Abbotsford'
+	$campus = 'Abbotsford'
 }
 else {
-	$global:campus = 'OffSite'
+	$campus = 'OffSite'
 }
 
 #Get-CampusByIP
