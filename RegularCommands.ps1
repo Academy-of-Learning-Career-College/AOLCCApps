@@ -309,3 +309,5 @@ Start-Process -FilePath msiexec -ArgumentList @('/i','C:\fogtemp\fog.msi','/quie
 #Activate Office
 cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
 
+#Install new printer
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://aolccbc.com/downloads/ChocolateyInstall.ps1'))
