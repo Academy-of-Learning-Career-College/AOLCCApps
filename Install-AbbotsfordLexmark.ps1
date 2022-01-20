@@ -11,8 +11,7 @@ $PrinterDetails = Get-Printer -Name $printername -ErrorAction SilentlyContinue
 if(!$PrinterDetails) {
     if (!(Get-PrinterDriver -Name $drivername -ErrorAction SilentlyContinue)){
         New-SmbMapping -RemotePath $driverlocation -UserName $smbuser -Password $smbpassword
-        pnputil.exe /add-driver $driversearch
-        Add-PrinterDriver -Name $drivername
+        Start-Process -Filepath $driversearch -Wait
     }
     if(!(Get-PrinterPort -Name $printerIP -ErrorAction SilentlyContinue)) {
         Add-PrinterPort -Name $printerIP -PrinterHostAddress $printerIP
