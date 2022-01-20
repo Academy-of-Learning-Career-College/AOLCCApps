@@ -29,9 +29,9 @@ else {
     stop
 }
 
-$drivername = 'Canon Generic Plus UFR II' #Driver from .inf file
+$drivername = 'Canon Generic PCL6 Driver' #Driver from .inf file
 $driverlocation = $smbserver + '\ttdata'
-$driversearch = $driverlocation +'\drivers\canonprinter\Driver\CNLB0MA64.INF' #INF file
+$driversearch = $driverlocation +'\drivers\GPCL6_Driver_V311_W64_00\Driver\CNP60MA64.INF' #INF file
 $smbuser = 'smbguest' #SMB Username
 $smbpassword = 'password' #SMB Password
 
