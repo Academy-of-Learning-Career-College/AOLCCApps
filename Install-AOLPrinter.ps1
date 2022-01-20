@@ -57,3 +57,11 @@ if(!(Get-Printer $printername -ErrorAction SilentlyContinue)) {
     Add-Printer -Name $printername -PortName $printerIP -DriverName $drivername
 
 }
+
+#Change Driver to PCL
+if (!(Get-PrinterDriver -Name $drivername -ErrorAction SilentlyContinue)){
+        New-SmbMapping -RemotePath $driverlocation -UserName $smbuser -Password $smbpassword
+        pnputil.exe /add-driver $driversearch
+        Add-PrinterDriver -Name $drivername
+        Add-Printer -Name $printername -PortName $printerIP -DriverName $drivername
+    }
