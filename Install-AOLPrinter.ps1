@@ -20,7 +20,7 @@ if((Invoke-WebRequest https://ifconfig.me/ip).Content -eq $abbwan) {
 #In Langley
 elseif((Invoke-WebRequest https://ifconfig.me/ip).Content -eq $lawan) {
     $printerIP = '192.168.2.245'
-    $smbserver = '192.168.2.230'
+    $smbserver = '\\192.168.2.230'
     $printername = 'Langley ' + $printername
     #$driverlocation = '\\192.168.2.230\ttdata\drivers'
 }
