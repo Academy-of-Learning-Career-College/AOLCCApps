@@ -19,4 +19,5 @@ choco source add --source='https://nexus.aolccbc.com/repository/choco-proxy/' --
 choco upgrade -y k-litecodecpack-standard jre8 acme respondusldb fog
 
 #Activate Office
+cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /inpkey:B6KBT-DN948-TCMXK-JQH4R-3DC63
 cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
