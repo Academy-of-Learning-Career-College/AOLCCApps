@@ -6,7 +6,8 @@
 
 # Create variables
 
-$sourcefolder = "{put your networkfolder here}" # Set the share and folder where you put the custom backgrounds
+$sourcefile = "https://github.com/fireball8931/AOLCCApps/raw/master/aolccwallpaper.jpg" # Set the share and folder where you put the custom backgrounds
+$outfile = "$Uploadfolder\aolccwallpaper.jpg"
 $TeamsStarted = "$env:APPDATA\Microsoft\Teams"
 $DirectoryBGToCreate = "$env:APPDATA\Microsoft\Teams\Backgrounds"
 $Uploadfolder = "$env:APPDATA\Microsoft\Teams\Backgrounds\Uploads"
@@ -121,61 +122,11 @@ else
 # Check if machine is connected to your corporate network
 
 #$getoutput = (Test-Connection -ComputerName (hostname) -Count 1).IPV4Address.IPAddressToString # process active IP-address
-$getoutput = Get-NetIPAddress -AddressFamily IPv4 | Out-String -stream | Select-String -Pattern "IPAddress" # process IP-address list
+#$getoutput = Get-NetIPAddress -AddressFamily IPv4 | Out-String -stream | Select-String -Pattern "IPAddress" # process IP-address list
 
 # You can multiple adres ranges if your company has got vpn, wireless and physical different subnets. 
 # This because we don't want to start the copy action from the share if the device is not connected to the corperate network.
-
-if (($getoutput -like '*192.168.*.*') -or ($getoutput -like '*10.10.*.*') -or ($getoutput -like '*140.*.*.*'))
-
-    {
-        logwrite "Corporate network detected"
-        $connected="YES"
-    }
-else
-    {
-        logwrite "Corporate network not detected"
-        logwrite "Copy action of uploads folder from share not started"
-        Exit 1
-    }
-
-# copy content from share to teams background location
-
-if($connected -eq "YES")
-    {
         logwrite "Start copy action of uploads folder from share"
-        $sourcefiles = (Get-ChildItem -Path $sourcefolder -erroraction SilentlyContinue).Name
-        
-        if($sourcefiles -ne $null)
+        Invoke-WebRequest -uri $sourcefile -outfile $outfile    
+       
 
-        {
-        
-        foreach($sourcefile in $sourcefiles)
-            {
-                if(!(Test-Path $Uploadfolder\$sourcefile))
-                    {
-                        Copy-Item -Path $sourcefolder\$sourcefile -Destination $Uploadfolder\$sourcefile -Recurse -Force
-                        if(Test-path -Path "$Uploadfolder\$sourcefile")
-                            {
-                                logwrite "File $sourcefile was copied"
-                            }
-                        else
-                            {
-                                logwrite "Failed to copy file $sourcefile"
-                                Exit 1
-                            }
-                    }
-                else
-                    {
-                        logwrite "File $sourcefile already exists"
-                    }            
-                            
-            }
-        }
-
-        else
-
-        {
-        logwrite "Failed to connect to $sourcefolder "
-        }
-    }
