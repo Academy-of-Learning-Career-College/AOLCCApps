@@ -161,6 +161,9 @@ $printers = @(
 'Student Printer'
 'Langley Facilitator'
 '*facil*'
+'Student Lexmark*'
+'Brother*'
+
 )
 
 foreach ($printer in $printers) {
@@ -175,8 +178,26 @@ foreach ($printer in $printers) {
     }
 
 }
-Restart-Service Spooler
+$printers = Get-Printer
+#Remove WSD Devices
+Write-Host Checking for WSD printers and removing
+foreach ($printer in $printers) {
+    #Write-Host $printer.PortName
+    if($printer.PortName -like 'WSD*') {
 
+    #$printerdata = Get-Printer $printer -ErrorAction SilentlyContinue
+    #Write-Host $printerdata.Name`n $printerdata.DriverName`n $printerdata.PortName -ErrorAction SilentlyContinue
+    Write-Host Removing $printer.Name
+    Remove-Printer $printer.Name -ErrorAction SilentlyContinue
+    Remove-PrinterPort $printer.PortName -ErrorAction SilentlyContinue
+    Remove-PrinterDriver $printer.DriverName -ErrorAction SilentlyContinue
+    }
+
+}
+
+Restart-Service Spooler
+Write-Host Here are the currently installed printers
+Get-Printer | Select Name, PortName
     Return $true
     
 }   
