@@ -151,6 +151,30 @@ New-ItemProperty -LiteralPath 'HKCU:\SOFTWARE\Canon\PCL6\Abbotsford Canon Printe
 
 get-printer *canon* | Set-PrintConfiguration -Color $False -PaperSize Letter
 Write-host Printer Install was Successful
+Write-host Removing Old Printers
+#Remove old printers
+
+$printers = @(
+'ET788C7778983A'
+'Student-Printer *HP DeskJet'
+'Student-Printer'
+'Student Printer'
+'Langley Facilitator'
+'*facil*'
+)
+
+foreach ($printer in $printers) {
+    
+    $printerdata = Get-Printer $printer -ErrorAction SilentlyContinue
+    Write-Host $printerdata.Name`n $printerdata.DriverName`n $printerdata.PortName
+    
+    Remove-Printer $printerdata.Name
+    Remove-PrinterPort $printerdata.PortName
+    Remove-PrinterDriver $printerdata.DriverName
+
+}
+Restart-Service Spooler
+
     Return $true
     
 }   

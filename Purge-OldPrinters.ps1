@@ -6,6 +6,7 @@ $printers = @(
 'Student-Printer'
 'Student Printer'
 'Langley Facilitator'
+'*facil*'
 )
 
 foreach ($printer in $printers) {
