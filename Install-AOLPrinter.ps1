@@ -164,13 +164,15 @@ $printers = @(
 )
 
 foreach ($printer in $printers) {
-    
+    if(Get-Printer $printer -ErrorAction SilentlyContinue) {
+
     $printerdata = Get-Printer $printer -ErrorAction SilentlyContinue
-    Write-Host $printerdata.Name`n $printerdata.DriverName`n $printerdata.PortName
+    #Write-Host $printerdata.Name`n $printerdata.DriverName`n $printerdata.PortName -ErrorAction SilentlyContinue
     
-    Remove-Printer $printerdata.Name
-    Remove-PrinterPort $printerdata.PortName
-    Remove-PrinterDriver $printerdata.DriverName
+    Remove-Printer $printerdata.Name -ErrorAction SilentlyContinue
+    Remove-PrinterPort $printerdata.PortName -ErrorAction SilentlyContinue
+    Remove-PrinterDriver $printerdata.DriverName -ErrorAction SilentlyContinue
+    }
 
 }
 Restart-Service Spooler
