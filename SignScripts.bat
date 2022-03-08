@@ -1,0 +1,1 @@
+powershell .\Sign-Script.ps1 .\*.ps1

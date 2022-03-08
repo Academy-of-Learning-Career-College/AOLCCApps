@@ -1,22 +1,9 @@
-#Get Disk Size and report if Printer installed
-#ifttt
-$webhook="https://maker.ifttt.com/trigger/computerspec/with/key/mi-aXAV80-ySPPFnWmDVGeOr62eW3bYYu_nkpJl6N0I?"
-$drive = Get-CimInstance -Class Win32_LogicalDisk | Select-Object * | Where-Object DriveType -EQ '3'
-$printerinstalled = 'printernotinstalled'
-if(Get-Printer "*Canon Printer") {
-    $printerinstalled = 'printerinstalled'
-}
-
-$size = [Math]::Round($drive.Size/1gb)
-Write-Host My drive is $size GB
-$request = $webhook + 'value1=' + $drive.SystemName + "&value2=" + $size + "&value3=" + $printerinstalled
-curl $request 
-
+$drive_letter = "C" ; $size = (Get-PartitionSupportedSize -DriveLetter $drive_letter) ; Resize-Partition -DriveLetter $drive_letter -Size $size.SizeMax
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUNSK6YveVkHxWo6IwXjWBQVty
-# kkWggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU23V6woZHuLlw5n/DVGq3n50S
+# jjyggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -92,23 +79,23 @@ curl $request
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUkfWVhSoSazer/XXm
-# wR0kUb27Z60wDQYJKoZIhvcNAQEBBQAEggEAjfRAk2kNufzuuQ9vIs9ffKjxarSg
-# CD1Xw5ct0JVBkuT398lFduTzLwbJazqWwoeTuwyj+BzG4tZ+V9Bg4M8XVEtoTjgV
-# 6yOwUk7FiK6YU1p1Ircs9pIXgE3tyUDf1rwx4AqjkEWy3JbigpatDMSPugCVzssZ
-# 9J2/2kG9rE21h9+mJqfj2M0khCZd84TyPLfyV36IB9CceDB79pfRLyyJEXohDTPR
-# rjM8S16hRdSuxMZifSMWOE77RuPvZTsEdqjb4LUuvflSTS7Hawal7IacFQxsxyXm
-# WU35Xv+LETu1Rul1KZvHoFnf2QQptDLJd1ccn9DJyy1IbV5qhKBUnaNSvaGCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUvbnpL55HkQUsqXtC
+# fOXrCat0AREwDQYJKoZIhvcNAQEBBQAEggEAnrf6jaQ2FnXEC8fSmqSgdjOrfYSV
+# BVVdtmVa1fclk6vh866j6wyDg0gFkJUHxCSvOjnalHvdmpvc2/rWdbnqE60PYcv1
+# XrhW5JMdgGLjA02CGQq3ZUbqhGq8LDlBvlBnXqE0qdq0c78g/+cJkywPV99KFNEm
+# FokhrMM7AbMPK1b/Ltt5fPpxev0MeMn2Z91MkjRuKuwdk3cGmVMXjVL/e/kBQz6o
+# C4xGMM8/z5VV+I4A7rE8ZjivsQaP2HER5f28QRVPpHmaUE6HSBkOxrZ3NAREM61s
+# zDETINN8NAPmqH02uuA96yXPMvq6Tq4lKT9lToqIXw8Foj0voCexT1TEcaGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
 # MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzA4MTkzODQ5WjAvBgkq
-# hkiG9w0BCQQxIgQg7q+mu5ogp6wvj+lhXDVB4YTRYxtO1y1+TWGUDAPlNvwwDQYJ
-# KoZIhvcNAQEBBQAEggEAiCjBxfTIH5NvJnZBqHmSD5rNhOuto01WHl8bHCIs/DSo
-# exOKxhykifhW9TeGoi6zNKJeiTTvFFgRPUyN7syumTi/Z6BA064X718qGaqvJaat
-# 3r7NZhXyCUYBTUkdv3B8tWVxqjUV9evmPiDStdxTpvtJaZ3Dx3+3qRk2LZVnA6f4
-# MJ+Wt7kSQRiS5qDyYVYzhl6ITgpWkR9wLM5PJyYU3iFJ4n6pIh4zcsVgtk0T1zns
-# 3O4+rXEc1Jr4WVfSewBq4Se6KUW/bW8pQFRISoUDIJmfBtp5ayFoGGWznsJGzQ76
-# uC/RvTlUzCj22S2zqBOz8+hEY3K3Ef0dh1dJW7//7Q==
+# hkiG9w0BCQQxIgQgs0ys0UCWdBwgirJH7ily5ixmHU5+G983CK81KbMBArIwDQYJ
+# KoZIhvcNAQEBBQAEggEAGkHj5Yxb+yU1OLeGMPdUa1UBKVm6E/613mjH3sEFCVp2
+# uU+k5fB7CuWJFygZdyBZlJghCtRQYNYaR0uGZ4pWyAl0PE/NSL7ky200utjEcVIP
+# gQAQcgm4gdC3/nWNhvUjJp3K/XIysjDRtdOQEw5Mw3SfWgs/6z62ysPVprDSJgVZ
+# 6Mn1lwCKExJndcitaba2bDEoetc9j/7EcFI4v0D/1n/fq8iwnozaaS3tdw+D56Sb
+# AkZAwdBbrn2xYVQxWFhz20+yqA4zKSmCe+9+5sXuJWmvCBTWs27QTNJ+AEvLZvqg
+# zS0O/LzCNo17Wus9d6e5CH0O19UdKfNL5QG7AgLx+g==
 # SIG # End signature block
