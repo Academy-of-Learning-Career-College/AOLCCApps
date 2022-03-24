@@ -126,12 +126,12 @@ Set-Shortcut -TargetPath $typingbatdest -FilePath $ttshortcutdest
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzA4MTk0MzExWjAvBgkq
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI0MjIxNTM5WjAvBgkq
 # hkiG9w0BCQQxIgQgZj/PTfe2vOo/9dwSF9Zg8AcJJjJK7L/HzjDqPs5uuhIwDQYJ
-# KoZIhvcNAQEBBQAEggEAtW8hTSX+r1qeMFAyShJWxxC1mVk+Y1UwUPTp/qIFQGyz
-# IoCzMp9753lBDs6euOfWHSUX/vGnkFJ5ll29lxE6atcQh+pHjRULJ/i2MuoLxNLU
-# +jNNlGsVHxntUCUuhpdGjywmceNlup9h+/iURhlcQRlexZSd9+F3I4Q+MYppkJkd
-# bJsoZbnS5oFvIk0vYlKLUDdcZsZ1hmWtsPYZFyCcrtl1SZCRqggb2ljap6WpgeuT
-# gNmcjjpJnabL8u6Bh8rmd/j5gl999rPm3UBbqsgncu0l1fMUYLACenth5ZRboR+Q
-# GyyUWTITgydXRrLk9dm9Yn7Wx3UgEQBxNX+EoOQFZQ==
+# KoZIhvcNAQEBBQAEggEAeg6VAUKp4mqrPiaVvU9q5MsFwSBCpYLTlVtd6BsRsrFO
+# YUsknZ8kMWple+LlLt+f7aupmRxWnkcTkCO9RtIXppXXoNOOQOLRODwMP9qOroAr
+# +8ooWvAj6PjcpdlnRph7VXR5oeXIEfqfmCZlmXumIynP6B9QMbjCPT2y/DF+xv1b
+# vfA5RkHhCl+NOW/go7N5ONA+WTcfxgvwipP4q5+43vdtplH1jCzezJ/D4MrPgKIZ
+# 5F/EPsSqrccjWtBlfiqXQGF+q5tSOEXRGqPu1O+pCvc1Temrb+9w3XdOIHCKT93N
+# dnzdBCbS5PTDOhmwcT/p8HQNPJOLYKmZUBKjgt1QNQ==
 # SIG # End signature block

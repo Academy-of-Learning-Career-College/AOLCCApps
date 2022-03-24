@@ -1,31 +1,13 @@
-$printername = 'Student Lexmark Printer'
-$drivername = 'Lexmark Printer Software G4 HBP'
-$printerIP = '192.168.1.233'
-$driverlocation = '\\192.168.1.229\ttdata\drivers'
-$driversearch = $driverlocation + '\LexmarkPkgInstaller.exe'
-$smbuser = 'smbguest'
-$smbpassword = 'password'
+$abbyprinter = Get-Printer "*Abb*Can*"
+$langleyprinter = Get-Printer "*La*Can*"
 
-$PrinterDetails = Get-Printer -Name $printername -ErrorAction SilentlyContinue
-
-if(!$PrinterDetails) {
-    if (!(Get-PrinterDriver -Name $drivername -ErrorAction SilentlyContinue)){
-        New-SmbMapping -RemotePath $driverlocation -UserName $smbuser -Password $smbpassword
-        Start-Process -Filepath $driversearch -Wait
-    }
-    if(!(Get-PrinterPort -Name $printerIP -ErrorAction SilentlyContinue)) {
-        Add-PrinterPort -Name $printerIP -PrinterHostAddress $printerIP
-    }  
-
-    Add-Printer -Name $printername -PortName $printerIP -DriverName $drivername
-    }
-    
-
+Add-Printer -Name "Abby Colour Printer" -DriverName $abbyprinter.DriverName -PortName $abbyprinter.PortName
+Add-Printer -Name "Langley Colour Printer" -DriverName $langleyprinter.DriverName -PortName $langleyprinter.PortName
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU7v+eGbk/Woqby2rgillR7gjH
-# h0yggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUQq2+e2qL8g88ARwZ80dHRGRu
+# 832ggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -101,23 +83,23 @@ if(!$PrinterDetails) {
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUyoBqmGIXHrQ54L01
-# Rmzw4LU4K2YwDQYJKoZIhvcNAQEBBQAEggEALLK/ZXbyMK8Dgm7jmVVXb45t3YHb
-# OnLAsXOjzXD1bFUvDiii+JiAYCLTjb79sAa9wCw4rBnQZTz69laWrAa/JRTlvFsO
-# fZvYevVfhXhuES0kuga+lrxaItcCxUVFEmihvIspPL57AvcsD/sC3pjDCAkeOC1J
-# HVYyFYMcPseXukRL/dGBC43yIWZwh0dv4vRGAe5vrWbFr7qPsvFBvIHdoeoVNq+R
-# LdDHh995XIMyKGFlDanKSWcRFUlcYRi8WrnD9FyKY2DPXfrS3Bu+MxH88OheIVws
-# umOkATy2juGSWn6o+hE4bn/f81jOv1EDx5elbGPSpHiHMn48Z4lDbdGhzqGCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUksmNzGZPoh8YM9RK
+# efAT2cQIBiYwDQYJKoZIhvcNAQEBBQAEggEAcqOmEzNvAtFxVA9Gw7cj1+Xagb5h
+# 14fwz3wS7VFc8OUCm6xkfpcHaLsEFk3KKjfHxl3Di1AgChE5B3MY3k9i/lQmVz35
+# vlDcXMr7uyX3kaIeZAbSPOYJOzIZQqYq9fjXpzu+byH4Rp6KYHKVqRGZDRy6ZoPP
+# CPJpBI6lmpFgElgkZ3YesYply71UfunNYMyL/8LKS0/cv8IIVwUhQ0V+CUwwJHq+
+# hAEtga+k3soJtTZV7U2PLn5aY2xe+bT7AhG0MJAEy+NKNT49/l3k20TFF28qRdxH
+# QIvTlxVY5TMBIfvBqTFdvrZrF89rsCApxmK9XcLEADDPfpvkKogp1lQ5GKGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI0MjIxNTM2WjAvBgkq
-# hkiG9w0BCQQxIgQgL0n2RKhfLi6YBXy6bfNEe1inJbkAaC9tHlI6/6wlcpgwDQYJ
-# KoZIhvcNAQEBBQAEggEAQy1x60uwckRX6otGL9QmjnW1Jr7IY6mb26PiXd24Vq0t
-# aE2vtdNYPp2MFktUCbaZV0z4vENTY5PdS32hWn1vIBrNziGcrpWbQXtL7OzxlBQn
-# cAioevqbjg4oTenBOuf1bkGorDbkeVemqSf3R8RaXBGWWIwBr9xiEH5NPwLA80uY
-# 3083ZS9ZDcbK7V/yYC4do5W9K6iuXcTykA+hsJGT1aLEjyDkn1oXnWAeOzzoSerJ
-# 6B/oDFIh/4mKGgGS6+fdKXDiOBJpft5evKJbDXBMUK9SJiO4ATQ0ESVUojM82yYh
-# dm2A5Ngb1awGgy7FrD8tCyaijjWcWAUeQ0A7Tg5mVA==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI0MjIxNTM3WjAvBgkq
+# hkiG9w0BCQQxIgQgadmWhOs0B/LcZmRhesbo1AdzUoyrqmAddEoQbvS2+YYwDQYJ
+# KoZIhvcNAQEBBQAEggEAA1sKd2TZCcjRncE3OzWlOtKcaiMPzFPZsJRFtkSXQGbn
+# 1XpRJKAWitNKmpZ6sSOLG5sjC8sWNXoqiwUE5ESgE7M2vHB+/OcivBibDL9f15Y6
+# UYr7q/Z0xMuuOC1GISQJudGHxMx0NfX0aLQKRj0qy6EPN1+Yqn/vCITHfEfkkJtQ
+# WOwOWvMZRqYSPJnV85UkhOrN1wsJZU/tdkhHMjqPWDTrfgPOjaS05X3vr+ZHNIS7
+# ee6SdDPbuIuctHi8XUW3x9kANYonu1r/cxpAyrYrNP/TB+fbAVM24pZ+OjYx3yft
+# sALDoGbx4M8cCBk5xi/fQCmDqd3EgNAsAAwgFLq8UQ==
 # SIG # End signature block
