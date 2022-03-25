@@ -57,7 +57,7 @@ if ($campus -ne 'OffSite') {
 	#Install new printer
 	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AOLPrinter.ps1'))
 	#Install Chocolatey
-	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/ChocolateyInstall.ps1'))
 
 	#Update Typing Trainer
 	$github = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Typing'
@@ -110,8 +110,8 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU1vAKMmznXOdN4YcKylVaxBj1
-# u/qggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUC8YCT7KKWKr0AhnKkgLC2zvJ
+# j6qggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -187,23 +187,23 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUWeDnqn+csZVPzQ0c
-# w1yyeTRu+1swDQYJKoZIhvcNAQEBBQAEggEAWLi1zKqpOVCOLdoPD9xh4AQLLTRX
-# +pkLXuLLzngYvcBmPJ5d1+9hk91IfxynFJBAaDhbGkz5dI0PGWXe9aLnGI/95Srv
-# Eri3ScbU93CEh6Gdgt1MIWqq45MnpwGK8lbk1fjtmikVEiRN5tstKVx7Gd7PGtGR
-# 7GP7nTjmyMY9HeHsM71NLX2yv1LaL2RyyzChc+/m2gc3snLJkSHiKgfRQZ5hNv6O
-# ElRUJhQtdKowMnoxoZk+/yv2JTshFp6fxBxj8XHCmXkOC4FnLn6x8DDGM3piLz8t
-# qtWXYQhlm6icvsLLnPEwP1juJ1WxRXI68RVOMfpqrGvbdJW3aSXZNmDnR6GCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUN4vV1YkaFh+l9u7a
+# mOciP0zRPV8wDQYJKoZIhvcNAQEBBQAEggEACo41f1sJHgKo2CK6jcAAz0cULi4e
+# fOEoWwYaTB03HKWPoZoBYmzqnTLB/NQVHj7a2hlTdVd5IYygVoh1u1vGdV4+ioF7
+# GEGn7amEB1FquT07qwtcO0mohhAi1UHI/+fvnjF3fp1RRSKHV5KmD0wvtKS86HWR
+# YZus8Dakk87YIkX8N8g0FZJYr79188k6r0c7Yqw4DTczuNDcanrQMAIF75etr/kv
+# x/ygduNYCc0pqEKvwol18F6648Ke4DqcSq0LP1J/aJ2XXZ6dQq1tPhtI/VvKm+PZ
+# kqNyoeyzFyYxqMhc0ochOELu8d1D87t4vCGAHf6NSHcGUvkv46qUFqSOX6GCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI0MjIyMjI0WjAvBgkq
-# hkiG9w0BCQQxIgQgbgbBAun1jDx6SQMwUjs58TRM4gJKrkxmqeIhhS1Of64wDQYJ
-# KoZIhvcNAQEBBQAEggEAs/qjw8cAW5IEosAAJ1ccLBwt8iMMiJ+2aF0Q/O8tRtWb
-# g9Tf6W5JxKS4NDDpQB/PS7AyHMQoaLg/j5GZXh849j4+LsHjTTldMu3HjqNG9Evf
-# 1SB7evfxzvWo+kMR0Rq8d7Hn+x6n1zLR1gJQauMY0q3Mt8uQtyuaUXwIxxstcseS
-# wjgv57IPzB2u6Mr4n9dJkcsXQBuFn+Na7anKRwKRDDcYAvyqVfnxIiKkiynrbD9f
-# lv4ppgD84+jPOeLs5/BfYQnj4EAPJF9nRJ0gXmxi+Xqjc/RY2Dnj0hEudQMRY3GD
-# hTaJUqaQmssivhS+MzHAS/AyF1wXTnd18BmaVI5mlQ==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI1MTUwOTE2WjAvBgkq
+# hkiG9w0BCQQxIgQghxiUCbqd/QrFd2YpApsQEPEilOKcS4589a9IFDQuslgwDQYJ
+# KoZIhvcNAQEBBQAEggEAdjKFZuJP/yj32hvxI7baRq7nCyS1ZOJ/Lt9bq3Nugv0S
+# ftiNOFj7rr3Uahgyi/GDggcEv63FK4JTpua+3eI6Cu/BmZ6UW+QHMJsb7qyAo/l+
+# f1QInMuB4ZrLcTgqJH5HdMS+RBukq3/NsfpFwxuT/+RTm2MNZwhY01ejq0ybwmQs
+# 5dj0y0lyVdPyD+RZpwYVvOF/ZhXw4NcCDnDG5SajmT6V1heFnxLh8Pr6z8ZCGOM6
+# t7/Yw+qxENTUPsBhwkN0HT8q6aYOjbbFjc3yMnRSr9Hm3PXpOtuXTdCNLfbr5Y2z
+# ntlT7f0O0i51N7DZ8ZZavSpSVxLezlWmEQ9m2oiH6A==
 # SIG # End signature block

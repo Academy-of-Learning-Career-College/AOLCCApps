@@ -1,3 +1,6 @@
+#VERSIONS TO CHECK FOR
+$acme = '215.2'
+
 Get-AppxPackage -Name Microsoft.MicrosoftOfficeHub | Remove-AppxPackage -AllUsers
 
 #Chocolatey
@@ -18,6 +21,10 @@ choco source add --source='https://nexus.aolccbc.com/repository/choco-proxy/' --
 #install K-LiteCodecPack-Standard, Java runtime 8, ACME, and latest version of respondus lockdown browser
 choco upgrade -y k-litecodecpack-standard jre8 acme respondusldb fog
 
+if ((Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\ACME" | Select version).version -lt $acme) {
+	choco install -y --force acme
+}
+
 #Activate Office
 cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /inpkey:B6KBT-DN948-TCMXK-JQH4R-3DC63
 cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
@@ -25,8 +32,8 @@ cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUyA4NCCvHwg9+PFzshIV+T8AB
-# Wliggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU/1EXuT4vV5PKwsGBIfcSwncf
+# AtKggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -102,23 +109,23 @@ cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUyTeC+d93PpzD+s3a
-# a+ewOEUiK9gwDQYJKoZIhvcNAQEBBQAEggEAoyG1lMuEk5A8rSkmUMzznZAz55hL
-# WG8B/ISslh2uvTSVFw/8bUPqsoI4a+oRFTgzWjwEP+kb39rnLj6DDmSw/VOFfnNB
-# KT/Rp2iBByA5sJeCffqFzRY04pnMfZCW9/mLsDx/0ogOUPxP3dOuxhd9thbVaw3s
-# rfNqS7+eG6qm1uQlE06P/xjDR7kig8LPF+Yz4UmAwMgrNzGJvzZRdMyxu0IiHulx
-# +gZO+ZrCdex2GXkQGyH9PIHK/VvDQw4Uh/ZlmdBxWk5DkH/ZtM4p9fKXRF+gq1fV
-# +pggXLsUfcF0DffdlzbV0FIxE0TMV6nGS7qCTnJSPqFmxFJ44Ejidv6J7KGCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUxVEYmeKqM3FS0grG
+# saRWlRc6DB0wDQYJKoZIhvcNAQEBBQAEggEAMYis7rAWiPAuWMze2h441qRcJNtD
+# 6yvLa4a9BFc74cQ+R/BJNFzOfYdp9IKUeypFPwKJXLRnvvCQxvOl+czlxnESqOnW
+# gGW0j8ut4rUWKSgbzQqHaPqdz8Ah1ENB1d+0hSL7HexVpEye3wFzTmOsxDKWzjUP
+# WkNgg3xgcg7et0Bulwy0uChIiQz2HP/ACZY6VHeHiL1X+zFkz322OLpr4whCO9Dp
+# P9n8bv5YXRouks5k4j2YVi+jWfV8/NCI1m+EoaBXFl1QhgVvEEWfogmcx67E1xn6
+# ZZve/nlGipVPsl9aJrPjGqSGDAxspQH0AA7d5pctWr6diiHR++4+OZQERKGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI0MjIyMjIzWjAvBgkq
-# hkiG9w0BCQQxIgQg20hu9/syNxoU8CDR1cM6SkSH+2qlEavlVvYyfJn5wPgwDQYJ
-# KoZIhvcNAQEBBQAEggEAtrzUEyNEuQcI5yIwUFHKYAXcIXDgphWWFss1M/2cGcdm
-# Kl8GMdN6X4xhEy05y3LSQ9g0O/h/4Kx/ETAhxFssGcvQItjkRIHG0WIfgViTm81+
-# gseputhV1zaBWeG3Ia/Lv3PkYvoXXREVvajNo/PHpf3mAZUoXSoe3lCtb6UstZ3l
-# 7nRthgatsyXtY+hFJL+vRBbskYf0ROIfQM94MfW92bAS4HbwZcEE6dx1kjVUaLR4
-# yYI5DNBYcSXzbLqx4IlGz+Ru/eGCqxQJlcNTCL+FZxa/5kQ5MpLSUkO1EWhqUTC9
-# jtGuuugpjN1xBgq8qmsjgL+JLhX7xB4ERx68NIHRlw==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI1MTUwOTE1WjAvBgkq
+# hkiG9w0BCQQxIgQgnerWpXVOiV1ugXRr3NgNnbVIuOJGmSLMKckp1n7QzQIwDQYJ
+# KoZIhvcNAQEBBQAEggEAlBojxlafLVCmF2LF8sQBAsND2XPqInW8OEdY/j6a6HcY
+# 1Q4lWpyu1OYC/EwkynOxahrrPcIGfJNRPHsrxpqu+9hWsPeKZ32G/KxBnTsSLMlZ
+# R5aAcCnm7HtXw/UmdaeNTk0D32xVqZHl/lf+YfQqKlas1B9vJH9CJRVDR5C3oWcf
+# 0tyKHiAJUcG3Hl/LJoXQ6ICLNbIDF/TsvCAyEamxPSBo6ceOmHeLodup9qsQEXRB
+# ZMQyDGTU9lQRtmrKcEoVfl81Mkpe1727c8PZ/CBRAGCEdlm+4uUCeqIb/ofzuWp6
+# TedGBzxcf/+Aap2FJ3o/YlQRky8vOA0fB8uaQDAXog==
 # SIG # End signature block
