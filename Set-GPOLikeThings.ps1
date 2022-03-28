@@ -31,6 +31,7 @@ New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main
 # Set Default Associations
 Invoke-WebRequest -Uri 'https://www.aolccbc.com/downloads/defaultassociations.xml' -OutFile 'c:\defaultassociations.xml'
 reg add 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System' /v DefaultAssociationsConfiguration /t REG_SZ /d 'c:\defaultassociations.xml' /f
+$strPath3 = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization'
 
 New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows' -Name 'Personalization' -Force
 Set-ItemProperty -Path $strPath3 -Name 'LockScreenImage' -Value $LockscreenFullPath -Force
@@ -62,7 +63,7 @@ $scriptdir = 'C:\scriptfiles\'
 $LockscreenFullPath = $scriptdir + $Lockscreen
 
 if ((Test-Path -Path $LockscreenFullPath) -eq $false) {Invoke-WebRequest -Uri $LockscreenURI -OutFile $LockscreenFullPath}
-$strPath3 = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization'
+
 
 powercfg -h off
 
@@ -95,19 +96,29 @@ if ((Test-Path -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Pol
 New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorUser' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
 
 
-if(!(Get-LocalGroupMember -Group "Remote Desktop Users" -Member "ACADEMY\mike")) {
-Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\mike@aolccbc.com"
+try {
+	Get-LocalGroupMember -Group "Remote Desktop Users" -Member "ACADEMY\mike"
 }
-if(!(Get-LocalGroupMember -Group "Remote Desktop Users" -Member "ACADEMY\rod")) {
-Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\rod@aolccbc.com"
+catch {
+	Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\mike@aolccbc.com"
 }
+
+
+try {
+	Get-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\RodTempleton"
+}
+catch {
+	Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\rod@aolccbc.com"
+}
+
+
 
 (Get-WmiObject -Class "Win32_TSGeneralSetting" -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'").SetUserAuthenticationRequired(0)
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUiBRyB+M1jsvi9Py+uqXH5/X4
-# D2qggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU3XmQ8pgE+mCTs2wJBELyk52x
+# mICggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -183,23 +194,23 @@ Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\rod@aolccbc.
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUg4c5eL5ao2Q+lUkh
-# ffbtHKTx1OIwDQYJKoZIhvcNAQEBBQAEggEASZqg5dQuCuQSNazItF1kCFBiEQt5
-# 2CW8C/GTs7XS4JvqPSHuoVf6SDag4nuGjlaL0uYwdCyvOS+Z3/DZLCsbOmV2N9WU
-# /FNXCU81JzxJhUXDsGbDkBI7P1DRjo7IyxmZZwUiaUQlZSDpVPz5WlFwK3ZHyxFP
-# EkE4mC/5UmWzP7Kk4hYohhFQPpBG0K07if7kU4Yn0BnVxa1dLAsitlTOMGz0cASc
-# CksdxIr/nqjcmWn2rxmixcGoXvoyRUiz81F37lCgwGbcqgnMED0IvBcTHVtrd2Hh
-# rKrg2HAbkXY1Z1AYYEJ5rx9n3ef/hyaasOEL8MkdCw8yctqtowm4yfizC6GCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUy2WR+mLngJEGQ+4U
+# +UW9q4qA570wDQYJKoZIhvcNAQEBBQAEggEAkPq9Uf9IxaKz5x4KwkG5AO972H+o
+# fC0k54gIvAkXgduXKHvveUGoxN8/Zpd1jgZdlsmdUS6FNJ9z6wGm5qD5267tWvQi
+# 2GHCehJzsp55rLIRmkErmOAoRZesueBDbCfMfdpc96gqp0OZTgG1K4NEVDLQxN+V
+# ADzuqbd6C2f9neBpPUU4TaG52PqreDUFAMq4xP10EW3FlpN7vS0tz5XRStyHJlbp
+# GrSrbHK2V2WG50Yqa08pfCQPHfANYlaVcuSsIZgRXYaOl4HDpLpoalWOfzoZBOZf
+# 87Y1cLifb1BCU8kQKYeZyKfqr3+6HkysElZxzEbgR20cCaXn36Z44vij2qGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjA0MTAyWjAvBgkq
-# hkiG9w0BCQQxIgQgQEb4yM+gecYKzMna+dyfQvfPh4B7zHCuEQzs922hhUUwDQYJ
-# KoZIhvcNAQEBBQAEggEAh25sc2j+D1vSsoxJEPC5wwrnHT2PXDC7u0fPRZ1JtxhV
-# PuFwa/vvoWFkobT279ncEewvVD3H/AxoaTuDF5/TD3cF9wrmqNx89JDHZ/bo84vr
-# cjnL3bD6kz/44aQ9XN4SQB22ZOYyaw6R3l5V6tpAV2TB/cTrScxGZfnO5g6SXUIT
-# FUAP8NljkQTnSnvFthkNrMZiif704IMy/rWwIaLPIteQeLOrmeK5r55E0XZOvxiL
-# kioDGN3kXPAaqvXOYWr1jzUityHNouhg7bm99caBCTCBfGrvt0EsNbO+OB98M+uV
-# rgU/1s0JSC6BtJvAx/KKBHq0QQQ2sDVtUVsn+WxwsA==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjIwMjU2WjAvBgkq
+# hkiG9w0BCQQxIgQgxnRrgdDOmj5xAnYkNANLN8Yx7CfPuWiEIxH1SuTeSB4wDQYJ
+# KoZIhvcNAQEBBQAEggEAEH5QmcGJLTmQpSZlDP2AkaJ/127OuN5RdiVokypcSeqj
+# 18B4AN/aSsM46Mk67WKOEU6iZKKalBNmFEpzJDxspiqxchC6Q6+K1gb0d6nlwLz6
+# 6CSH1+Qls5FNzDQI/q1djvRKj4oLD0Koslcw5dG0eCUzUZ2oJOPeJ8Gu1tP6xe1Q
+# eMcjaLnHPUJ6PEwEXvKigR36d9qjkhmgVovNAH3Tc8z7OVQknclimcHQV9F3jddx
+# tZ9QSfM8rgJZnwnjSjFdcjovBZKZKoGr8d8qCDwefmPDnehvpIdTMSK4DS1eybQ5
+# sYQZbCpmhZAUfyNPK4ONxEug+AyRpiVW9s9Q5iPnWQ==
 # SIG # End signature block

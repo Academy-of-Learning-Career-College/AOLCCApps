@@ -9,26 +9,90 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
    
    # Remainder of script here
 
+function New-WifiProfile {
+
+   param(
+    [string]$SSID,
+    [string]$PSK
+)
+$guid = New-Guid
+$HexArray = $ssid.ToCharArray() | foreach-object { [System.String]::Format("{0:X}", [System.Convert]::ToUInt32($_)) }
+$HexSSID = $HexArray -join ""
+@"
+<?xml version="1.0"?>
+<WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
+    <name>$($SSID)</name>
+    <SSIDConfig>
+        <SSID>
+            <hex>$($HexSSID)</hex>
+            <name>$($SSID)</name>
+        </SSID>
+    </SSIDConfig>
+    <connectionType>ESS</connectionType>
+    <connectionMode>auto</connectionMode>
+    <MSM>
+        <security>
+            <authEncryption>
+                <authentication>WPA2PSK</authentication>
+                <encryption>AES</encryption>
+                <useOneX>false</useOneX>
+            </authEncryption>
+            <sharedKey>
+                <keyType>passPhrase</keyType>
+                <protected>false</protected>
+                <keyMaterial>$($PSK)</keyMaterial>
+            </sharedKey>
+        </security>
+    </MSM>
+    <MacRandomization xmlns="http://www.microsoft.com/networking/WLAN/profile/v3">
+        <enableRandomization>false</enableRandomization>
+        <randomizationSeed>1451755948</randomizationSeed>
+    </MacRandomization>
+</WLANProfile>
+"@ | out-file "$($ENV:TEMP)\$guid.SSID"
+ 
+netsh wlan add profile filename="$($ENV:TEMP)\$guid.SSID" user=all
+ 
+remove-item "$($ENV:TEMP)\$guid.SSID" -Force
+}
+#connectoabbotsfordwifi
+try {
+	Write-Host Connecting to Wifi
+New-WifiProfile -SSID "STAFF24g" -PSK "aolcc0404"
+}
+catch {
+	Write-Host No Wifi card installed, skipping
+}
 #global variables
-$scriptingdir = 'c:\scriptfiles'
-#Set our log file
+$scriptingdir = $env:systemdrive + "\scriptfiles"
 $timestamp = Get-Date -Format "ddMMyyyyHHmm"
-if(!(Test-Path -Path "$env:SystemDrive\scriptfiles")) {
+try {
+if ((Test-Path -Path $scriptingdir) -eq $false) {
+	New-Item -Path $scriptingdir -Type Directory -Force
+	$logfile = $scriptingdir + "\RegularCommands." + $timestamp + ".log"	
+}
+}
+	catch {
 	$logfile = $env:SystemDrive + "\RegularCommands." + $timestamp + ".log"
-}
-else {
-	$logfile = $scriptingdir + "\RegularCommands." + $timestamp + ".log"
-}
+	$scriptingdir = $env:TEMP
+	}
+#Set our log file
 Start-Transcript -Path $logfile -Append -Verbose
+
+
 
 $externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
 $langleyip = '66.183.1.50'
 $abbyip = '66.183.152.124'
+try {
 if ($externalip -eq $langleyip) {$campus = 'Langley'}
 elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
 else {$campus = 'OffSite'}
 Write-Host This computer is located at the $campus campus
-
+}
+catch {
+	Write-host This computer is not connected to the internet
+}
 
 $githubroot = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/'
 
@@ -36,27 +100,16 @@ $githubroot = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/'
 #Actual Commands File
 #check disk size
 
-if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){
-Write-Host Adjusting Volumes
-# Variable specifying the drive you want to extend
-#$env:HOMEDRIVE.Substring(0,1) = "C"
-# Script to get the partition sizes and then resize the volume
-$size = (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1))
-Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
-}
-
-# #Schedule a twice daily reboot
-# $action = New-ScheduledTaskAction -Execute 'shutdown.exe' -Argument '-f -r -t 30'
-# $trigger = @(
-# 	$(New-ScheduledTaskTrigger -At 5AM -Daily),
-# 	$(New-ScheduledTaskTrigger -At 8PM -Daily)
-# )
-# $settings = New-ScheduledTaskSettingsSet -WakeToRun -RunOnlyIfIdle -IdleDuration 05:00:00 -IdleWaitTimeout 06:00:00 -ExecutionTimeLimit (New-TimeSpan -Hours 1)
-# Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Reboottwiceaday" -Description "Reboot the computer twice a day to avoid unexpected reboots" -RunLevel Highest -User "NT AUTHORITY\SYSTEM" -Force -Settings $settings
-
-
-
-
+try {
+	if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){
+	Write-Host Adjusting Volumes
+	$size = (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1))
+	Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
+		}
+	}
+	catch {
+		Write-Host No need to extend the drive
+	}
 
 # if ($campus -eq 'Langley') { }
 # if ($campus -eq 'Abbotsford') { }
@@ -67,6 +120,7 @@ if ($campus -ne 'OffSite') {
 	try {Set-NetConnectionProfile -Name $net.Name -NetworkCategory Private}
 	catch {exit 0}
 	#Install new printer
+	
 	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Install-AOLPrinter.ps1"))
 
 	#Install Chocolatey
@@ -83,7 +137,7 @@ if ($campus -ne 'OffSite') {
 	$batchsource = $cloudloc + 'connect.bat'
 	$databasesrc = $cloudloc + 'database.txt'
 
-	if ((Test-Path -Path $scriptingdir) -eq $false) {New-Item -Path $scriptingdir -Type Directory}
+	
 	Set-Location -LiteralPath $scriptingdir -Verbose
 	Invoke-WebRequest -Uri $batchsource -OutFile $connectpath -Verbose -UseBasicParsing
 	Remove-Item -Path $typingtrainerfolder\database.txt -Force
@@ -113,8 +167,8 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUVFypVohuG4h5ENBDYp59Ey/9
-# Csiggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUwnnu2KSUHPee9ox9v4UaBEWA
+# sm6ggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -190,23 +244,23 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUaUXsSA/xGTF9R2L3
-# x5+McX4s72UwDQYJKoZIhvcNAQEBBQAEggEAYM+ze3W+pDRURK8AGE0kSdEWS/Qf
-# cdzQvba4GDk2lk42J6cj025MHkqAMt0KPgodjfdg0/0NRsD5uFIsn87vspHK4k1B
-# cWwO1qgRHYhk8bHdOKDKWxXKwe3EOW1jAezgCj0BNHJz653ueEm1lZNyJOcjHBIL
-# YoGGMoeIfNdxoRox09MtP2FuJrs7Dsjn9x9KzfDVf2PKDo+jA1eQvOIiM1SiOzlH
-# 206kgnSNetoK78EaWapNe/M4bMlCT/lGnK5d6hF+1wxh5D98J28k7RtnxvXE1pIt
-# MEzFsx20TDYYVRylN+73M1ZGjEaFkYzeoJeOnSNFropJRZ3kqZy1ZJkcnqGCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUnkMH2po+oJnwLZNr
+# CHgIauS30n4wDQYJKoZIhvcNAQEBBQAEggEAZIh9ZC84fjJYjR3xrxg/PKHgEB0P
+# MmSu9wxMOqIOvIHLZ51IGw+Ukpf43Hwzj14XcWyHEzwh2Oe2RX+eQCOPSIod2GMs
+# 0ZNHfqVrZ3+TinOgkzJlhit+OsJDscivyUtIHbtfZKMTRoaumPH5aIjTTsJGS/LS
+# awNbc6dEdD4QWkdbLilI0bbleU7m8o7X6Fq2V0dVDP8Paf121y+KWofhs6JSE2+8
+# 6aYTfutLTes5O/zX6+lVDDd27ZmKRAbRm3T/rLfBFIX9lR0iuMPBHGA0FTN00QN5
+# ScIoM7b+vciMsYcA3RSLNrb8PMDr2W28sgV5JiPeYKeAAt9NHJYqzTFyMqGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjA0MTAyWjAvBgkq
-# hkiG9w0BCQQxIgQgdg+Ey9myg7dAKR/d0jIqCR2cI/vBuionz8GqVQT1cGswDQYJ
-# KoZIhvcNAQEBBQAEggEAJeSprO4huW1ERg3n7YhiJDQJnuRH7DvHWx3P4+kmlm4W
-# qMjSXt7qG85MWySx87LpAk8sVy4/WoNffqsP3SV7KVSfYtPxEN1rIVPxsJmtwwMP
-# ivok8vm4phF0hXaObqrepm5X9TV+pKq2kslxFCzdBBBhhwNPAWKR2DEisCF0+L6M
-# 7u/xVqE7DEPi3xj+Lb3rhs4AOF9bIeAM844f84qfdWUbHv57lnoyB863fXW/MMUl
-# NIQdBTaZ1Ai3cfknP7Aeg3iWOyijlSfpIX9ciVPNlAETLPeFLFc6+fC+eLCUBCTT
-# 7Z8gU1yVJWUcJU/AUf+/PkcfVxw0huwqd/RucudGkQ==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjIwMjU1WjAvBgkq
+# hkiG9w0BCQQxIgQg+nuMSZgu5Q5CHc21h7Pw/6tZOq8UlVn2H0S5Mib2jUIwDQYJ
+# KoZIhvcNAQEBBQAEggEAawueWoGTa+S50z1Ayi519aegsZi1t52C3ekev/Kc7IZj
+# jMKBEaQMXq/7k4+KYDvF/lu3wZDOFLj1cahx+yKwaPGvqAqhGtHyXb4oV7EuFiGI
+# LlpB1YqIZ/f9ZKXEVTONyqAeWV2QdTvjGVkIBgQhh+F48dvGmjdP0AIgvFaD4F48
+# bmncpQ7N0ueKDR2cKRliZJv49sKmoODfhJVmsLttjNm9hJxX40UbAFN6CjkORfM6
+# qmgz2SQZe0vYKYbBuABl1G0zvQv0QHx+Wk3SF9p+eXd0hd6pP2iTYeyHkp19xaRA
+# JoiyuNpbNHpPVZ0FobWmHH5DvoWF/8TeUPJsNNby/A==
 # SIG # End signature block
