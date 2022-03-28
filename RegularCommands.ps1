@@ -10,11 +10,28 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
    # Remainder of script here
 
 #global variables
+$scriptingdir = 'c:\scriptfiles'
+#Set our log file
+$timestamp = Get-Date -Format "ddMMyyyyHHmm"
+if(!(Test-Path -Path "$env:SystemDrive\scriptfiles")) {
+	$logfile = $env:SystemDrive + "\RegularCommands." + $timestamp + ".log"
+}
+else {
+	$logfile = $scriptingdir + "\RegularCommands." + $timestamp + ".log"
+}
+Start-Transcript -Path $logfile -Append -Verbose
+
 $externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
 $langleyip = '66.183.1.50'
 $abbyip = '66.183.152.124'
+if ($externalip -eq $langleyip) {$campus = 'Langley'}
+elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
+else {$campus = 'OffSite'}
+Write-Host This computer is located at the $campus campus
+
+
 $githubroot = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/'
-$scriptingdir = 'c:\scriptfiles'
+
 
 #Actual Commands File
 #check disk size
@@ -38,33 +55,17 @@ Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
 # Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Reboottwiceaday" -Description "Reboot the computer twice a day to avoid unexpected reboots" -RunLevel Highest -User "NT AUTHORITY\SYSTEM" -Force -Settings $settings
 
 
-if ($externalip -eq $langleyip) {
-	$campus = 'Langley'
-}
-elseif ($externalip -eq $abbyip) {
-	$campus = 'Abbotsford'
-}
-else {
-	$campus = 'OffSite'
-}
 
 
-if ($campus -eq 'Langley') {
-#	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-HPPrinter.ps1'))
-}
-if ($campus -eq 'Abbotsford') {
-#	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AbbotsfordLexmark.ps1'))
-}
+
+# if ($campus -eq 'Langley') { }
+# if ($campus -eq 'Abbotsford') { }
+
 if ($campus -ne 'OffSite') {
-	Write-Host "This computer is at the $cloudloc campus"
 	#Set Network to private
 	$net = Get-NetConnectionProfile
-	try {
-		Set-NetConnectionProfile -Name $net.Name -NetworkCategory Private
-	}
-	catch {
-		exit 0
-	}
+	try {Set-NetConnectionProfile -Name $net.Name -NetworkCategory Private}
+	catch {exit 0}
 	#Install new printer
 	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Install-AOLPrinter.ps1"))
 
@@ -72,17 +73,9 @@ if ($campus -ne 'OffSite') {
 	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/ChocolateyInstall.ps1"))
 
 	#Update Typing Trainer
-	
+	# Set our variables
 	$github = $githubroot + 'Typing'
-	
-
-	if ($externalip -eq $langleyip) {$campus = 'Langley'}
-	elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
-	else {$campus = 'OffSite'}
-
 	$cloudloc = $github + '/' + $campus + '/'
-
-	
 	$connectpath = $scriptingdir + '\connect.bat'
 	$typingbatdest = $scriptingdir + '\typingtrainer.bat'
 	$typingbatsrc = $cloudloc + 'typingtrainer.bat'
@@ -90,9 +83,7 @@ if ($campus -ne 'OffSite') {
 	$batchsource = $cloudloc + 'connect.bat'
 	$databasesrc = $cloudloc + 'database.txt'
 
-	if ((Test-Path -Path $scriptingdir) -eq $false) {
-    	New-Item -Path $scriptingdir -Type Directory
-	}
+	if ((Test-Path -Path $scriptingdir) -eq $false) {New-Item -Path $scriptingdir -Type Directory}
 	Set-Location -LiteralPath $scriptingdir -Verbose
 	Invoke-WebRequest -Uri $batchsource -OutFile $connectpath -Verbose -UseBasicParsing
 	Remove-Item -Path $typingtrainerfolder\database.txt -Force
@@ -106,6 +97,7 @@ if ($campus -ne 'OffSite') {
 
 };
 
+#fix chrome shortcuts
 if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\chrome.exe") -eq $false) {
 	if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\chrome.exe") -eq $true) {
 		New-Item -ItemType SymbolicLink -Path "c:\Program Files (x86)\Google\Chrome\Application" -Target "c:\Program Files\Google\Chrome\Application"
@@ -113,16 +105,16 @@ if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\ch
 }
 
 #Manage Software
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Manage-Software.ps1"))
 
 #Set GPO like settings
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Set-GPOLikeThings.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Set-GPOLikeThings.ps1"))
 
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUliK7aWhctXLA1WKOtuy9fM6g
-# mPaggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUVFypVohuG4h5ENBDYp59Ey/9
+# Csiggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -198,23 +190,23 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQU6wacmSQnhH42RMfH
-# ZjjyzDkpBmwwDQYJKoZIhvcNAQEBBQAEggEAKR+u9YkkcLP+NDFoPRCYy05teHsU
-# 8I4INbvwrCteYvXq/PPjQ6axKXqZWe+dvsgSUSsARD14XAts7JHfe0m8Gxl1F3qJ
-# zIu3J4TnYA6UYma4wMOuOA4fAjnrPDNY7LicuSmoP22XKZWOl/gKbp2riNWJG/Nc
-# RLfbbkp1WugQOYnbpi5aWfA5fC5myFFfE51vUqRnr5vwSi2cAkdtiloYF5boxO2n
-# H5DthTsR9DcukfDg45EtTSd5ZOEQSzw1kWjLZduGH0Zw09j5T7E/RYtg5mnUJGu9
-# uAxG9xJRhtL8euOMwtiG59qEZaStQ+5sI8sWvl64NyO6Nz26ku0lKBB7/KGCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUaUXsSA/xGTF9R2L3
+# x5+McX4s72UwDQYJKoZIhvcNAQEBBQAEggEAYM+ze3W+pDRURK8AGE0kSdEWS/Qf
+# cdzQvba4GDk2lk42J6cj025MHkqAMt0KPgodjfdg0/0NRsD5uFIsn87vspHK4k1B
+# cWwO1qgRHYhk8bHdOKDKWxXKwe3EOW1jAezgCj0BNHJz653ueEm1lZNyJOcjHBIL
+# YoGGMoeIfNdxoRox09MtP2FuJrs7Dsjn9x9KzfDVf2PKDo+jA1eQvOIiM1SiOzlH
+# 206kgnSNetoK78EaWapNe/M4bMlCT/lGnK5d6hF+1wxh5D98J28k7RtnxvXE1pIt
+# MEzFsx20TDYYVRylN+73M1ZGjEaFkYzeoJeOnSNFropJRZ3kqZy1ZJkcnqGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjAxNTA4WjAvBgkq
-# hkiG9w0BCQQxIgQgElYPme1u9oxBrPMyZodGElUGogOjwXghAuQtIF9466kwDQYJ
-# KoZIhvcNAQEBBQAEggEAWPdmzGcusVNVCsuFhnaeFN4UwgDb+C7M90+wouk7Jzfs
-# YLz9sG0MKQtpqEuoIOWT8G4C2tUUrutPbIOYR+BDR2JCzjB5jhNQH65+55ofAGsu
-# PK0E4UD7IKAx4ES7JIJt12ZJWnpSAERTBp8HS0p/z+9UmTShC10bnhZ7A0Wa73av
-# Oaun2U+BdhCCCWkrKMf821weDgx1+vM4hDTo0eiOfhKcjXSUbiHdj2rxf5x+SZz/
-# vtjEctK5U3nhWwMnX7ZpkLIQ9R3Ht5dAbhF+UqjM4mo9GCR5C2jH3uVI2KG7K9QH
-# AguU7yD4KprqhS2/uJfg6jYB1Z6KFmbsJi9MkTVw5w==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjA0MTAyWjAvBgkq
+# hkiG9w0BCQQxIgQgdg+Ey9myg7dAKR/d0jIqCR2cI/vBuionz8GqVQT1cGswDQYJ
+# KoZIhvcNAQEBBQAEggEAJeSprO4huW1ERg3n7YhiJDQJnuRH7DvHWx3P4+kmlm4W
+# qMjSXt7qG85MWySx87LpAk8sVy4/WoNffqsP3SV7KVSfYtPxEN1rIVPxsJmtwwMP
+# ivok8vm4phF0hXaObqrepm5X9TV+pKq2kslxFCzdBBBhhwNPAWKR2DEisCF0+L6M
+# 7u/xVqE7DEPi3xj+Lb3rhs4AOF9bIeAM844f84qfdWUbHv57lnoyB863fXW/MMUl
+# NIQdBTaZ1Ai3cfknP7Aeg3iWOyijlSfpIX9ciVPNlAETLPeFLFc6+fC+eLCUBCTT
+# 7Z8gU1yVJWUcJU/AUf+/PkcfVxw0huwqd/RucudGkQ==
 # SIG # End signature block

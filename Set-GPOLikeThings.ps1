@@ -21,29 +21,29 @@ reg add "HKCU\Software\Policies\Microsoft\MicrosoftEdge\TabPreloader" /v "AllowT
 # Disable New Network Dialog:
 Write-Host "Disabling New Network Dialog..." -ForegroundColor Green
 Write-Host ""
-New-Item -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Network' -Name 'NewNetworkWindowOff' | Out-Null
+New-Item -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Network' -Name 'NewNetworkWindowOff' -Force | Out-Null
 Write-Host "Disabling IE First Run Wizard..." -ForegroundColor Green
 Write-Host ""
-New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft' -Name 'Internet Explorer' | Out-Null
-New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer' -Name 'Main' | Out-Null
-New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main' -Name DisableFirstRunCustomize -PropertyType DWORD -Value '1' | Out-Null
+New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft' -Name 'Internet Explorer' -Force| Out-Null
+New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer' -Name 'Main' -Force| Out-Null
+New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main' -Name DisableFirstRunCustomize -PropertyType DWORD -Value '1' -Force | Out-Null
 
 # Set Default Associations
 Invoke-WebRequest -Uri 'https://www.aolccbc.com/downloads/defaultassociations.xml' -OutFile 'c:\defaultassociations.xml'
 reg add 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System' /v DefaultAssociationsConfiguration /t REG_SZ /d 'c:\defaultassociations.xml' /f
 
 New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows' -Name 'Personalization' -Force
-Set-ItemProperty -Path $strPath3 -Name 'LockScreenImage' -Value $LockscreenFullPath
+Set-ItemProperty -Path $strPath3 -Name 'LockScreenImage' -Value $LockscreenFullPath -Force
 
 powercfg -SetActive '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
 Get-Volume | Optimize-Volume
 Write-Host "Configuring PeerCaching..." -ForegroundColor Cyan
 Write-Host ""
-Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config' -Name 'DODownloadMode' -Value '1'
+Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config' -Name 'DODownloadMode' -Value '1' -Force
 
 Write-Host "Removing Transparency Effects..." -ForegroundColor Green
 Write-Host ""
-Set-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'EnableTransparency' -Value '0'
+Set-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'EnableTransparency' -Value '0' -Force
 
 Write-Host "Modifying WMI Configuration..." -ForegroundColor Green
 Write-Host ""
@@ -61,9 +61,7 @@ $LockscreenURI = 'https://aolccbc.blob.core.windows.net/aolcc/AOLCC_Wallpaper_Gr
 $scriptdir = 'C:\scriptfiles\'
 $LockscreenFullPath = $scriptdir + $Lockscreen
 
-if ((Test-Path -Path $LockscreenFullPath) -eq $false) {
-	Invoke-WebRequest -Uri $LockscreenURI -OutFile $LockscreenFullPath
-}
+if ((Test-Path -Path $LockscreenFullPath) -eq $false) {Invoke-WebRequest -Uri $LockscreenURI -OutFile $LockscreenFullPath}
 $strPath3 = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization'
 
 powercfg -h off
@@ -97,13 +95,19 @@ if ((Test-Path -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Pol
 New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorUser' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
 
 
+if(!(Get-LocalGroupMember -Group "Remote Desktop Users" -Member "ACADEMY\mike")) {
 Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\mike@aolccbc.com"
+}
+if(!(Get-LocalGroupMember -Group "Remote Desktop Users" -Member "ACADEMY\rod")) {
+Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\rod@aolccbc.com"
+}
+
 (Get-WmiObject -Class "Win32_TSGeneralSetting" -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'").SetUserAuthenticationRequired(0)
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU3boJxe21OlolMKqtffFJ7vSF
-# PLGggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUiBRyB+M1jsvi9Py+uqXH5/X4
+# D2qggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -179,23 +183,23 @@ Add-LocalGroupMember -Group "Remote Desktop Users" -Member "AzureAD\mike@aolccbc
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUIJH/xt45/noIEazW
-# 4WFx1EyaFegwDQYJKoZIhvcNAQEBBQAEggEAobLyGDgNOiagEwDFIkFP57ifIdBv
-# 2qhziL+nI9ZWu2mAWNRJNwY9XbUAnXoBFIWMHsYaZ4OTD880hmfrYi7kXtlsxw5d
-# ZSN5uD9W7sHYarxas1cRYQixglWlrH1OuhJTjCRi8aRUSe49GibbfOWislADX1aK
-# VnOJfEXdj8+EHL/Ilb+ytZMo4BAGz0vDwROAU9cMW4SQ8H61UeWris0BJPZXDqrT
-# vneq92FeXB8VlbnbAW1txxLa4y5N9TERAn+lKk2klRf12GeTDdF/1ldZ/qkr9IRV
-# M86ItVqi6eszQTQ7USeKZLbKBHdFYOqmntl2PemoUdQ/7dFzSgB7xJufD6GCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUg4c5eL5ao2Q+lUkh
+# ffbtHKTx1OIwDQYJKoZIhvcNAQEBBQAEggEASZqg5dQuCuQSNazItF1kCFBiEQt5
+# 2CW8C/GTs7XS4JvqPSHuoVf6SDag4nuGjlaL0uYwdCyvOS+Z3/DZLCsbOmV2N9WU
+# /FNXCU81JzxJhUXDsGbDkBI7P1DRjo7IyxmZZwUiaUQlZSDpVPz5WlFwK3ZHyxFP
+# EkE4mC/5UmWzP7Kk4hYohhFQPpBG0K07if7kU4Yn0BnVxa1dLAsitlTOMGz0cASc
+# CksdxIr/nqjcmWn2rxmixcGoXvoyRUiz81F37lCgwGbcqgnMED0IvBcTHVtrd2Hh
+# rKrg2HAbkXY1Z1AYYEJ5rx9n3ef/hyaasOEL8MkdCw8yctqtowm4yfizC6GCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjAxNTA4WjAvBgkq
-# hkiG9w0BCQQxIgQgBI66QPYs4X04s7Tr9w2iBJMRDwahS5jX0lUNctjTUucwDQYJ
-# KoZIhvcNAQEBBQAEggEAqhQgkaUQCnXeurpT8T9bxKN1kWNBw2EN2qIwf3ubuzfx
-# xuFbPCD8JdA9Oi7kkLYfE4bKFQWkHTaWPInnIYzd8hpfjopjC+dsJqIUGn/y7gJz
-# vuFJDs5gVIQ6fE++cZY6o6kCmtdZAuoAB8XSkXBy8zQvLZmfQx4mF9zRQ9Msmldi
-# cgQfRmUX9acxHpSpjty8gMBfRE6KEHRVQ2fw8VL/7BqfRY5fBQKLgQ5hQSvzkSU6
-# LkgEdCpKruUTUDlC3ZC4+BeKZiGI84zLMDCnZ+5W48wsVLP1EmCrwrpc33dywHEs
-# P0QyCaksCnO3Qc2wIY4E2mv14FYfNZ8bL1WaOhXNxg==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjA0MTAyWjAvBgkq
+# hkiG9w0BCQQxIgQgQEb4yM+gecYKzMna+dyfQvfPh4B7zHCuEQzs922hhUUwDQYJ
+# KoZIhvcNAQEBBQAEggEAh25sc2j+D1vSsoxJEPC5wwrnHT2PXDC7u0fPRZ1JtxhV
+# PuFwa/vvoWFkobT279ncEewvVD3H/AxoaTuDF5/TD3cF9wrmqNx89JDHZ/bo84vr
+# cjnL3bD6kz/44aQ9XN4SQB22ZOYyaw6R3l5V6tpAV2TB/cTrScxGZfnO5g6SXUIT
+# FUAP8NljkQTnSnvFthkNrMZiif704IMy/rWwIaLPIteQeLOrmeK5r55E0XZOvxiL
+# kioDGN3kXPAaqvXOYWr1jzUityHNouhg7bm99caBCTCBfGrvt0EsNbO+OB98M+uV
+# rgU/1s0JSC6BtJvAx/KKBHq0QQQ2sDVtUVsn+WxwsA==
 # SIG # End signature block
