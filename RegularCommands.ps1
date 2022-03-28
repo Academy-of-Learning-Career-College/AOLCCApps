@@ -9,6 +9,22 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
    
    # Remainder of script here
 
+   $scriptingdir = $env:systemdrive + "\scriptfiles"
+   $timestamp = Get-Date -Format "ddMMyyyyHHmm"
+   try {
+   if ((Test-Path -Path $scriptingdir) -eq $false) {
+	   New-Item -Path $scriptingdir -Type Directory -Force
+	   
+   }
+   $logfile = $scriptingdir + "\RegularCommands." + $timestamp + ".log"	
+   }
+	   catch {
+	   $logfile = $env:SystemDrive + "\RegularCommands." + $timestamp + ".log"
+	   $scriptingdir = $env:TEMP
+	   }
+   #Set our log file
+   Start-Transcript -Path $logfile -Append -Verbose
+
 function New-WifiProfile {
 
    param(
@@ -64,20 +80,7 @@ catch {
 	Write-Host No Wifi card installed, skipping
 }
 #global variables
-$scriptingdir = $env:systemdrive + "\scriptfiles"
-$timestamp = Get-Date -Format "ddMMyyyyHHmm"
-try {
-if ((Test-Path -Path $scriptingdir) -eq $false) {
-	New-Item -Path $scriptingdir -Type Directory -Force
-	$logfile = $scriptingdir + "\RegularCommands." + $timestamp + ".log"	
-}
-}
-	catch {
-	$logfile = $env:SystemDrive + "\RegularCommands." + $timestamp + ".log"
-	$scriptingdir = $env:TEMP
-	}
-#Set our log file
-Start-Transcript -Path $logfile -Append -Verbose
+
 
 
 
@@ -167,8 +170,8 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUwnnu2KSUHPee9ox9v4UaBEWA
-# sm6ggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUPXRmi3B2LxwNSc+F+wW9QRlF
+# y82ggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -244,23 +247,23 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUnkMH2po+oJnwLZNr
-# CHgIauS30n4wDQYJKoZIhvcNAQEBBQAEggEAZIh9ZC84fjJYjR3xrxg/PKHgEB0P
-# MmSu9wxMOqIOvIHLZ51IGw+Ukpf43Hwzj14XcWyHEzwh2Oe2RX+eQCOPSIod2GMs
-# 0ZNHfqVrZ3+TinOgkzJlhit+OsJDscivyUtIHbtfZKMTRoaumPH5aIjTTsJGS/LS
-# awNbc6dEdD4QWkdbLilI0bbleU7m8o7X6Fq2V0dVDP8Paf121y+KWofhs6JSE2+8
-# 6aYTfutLTes5O/zX6+lVDDd27ZmKRAbRm3T/rLfBFIX9lR0iuMPBHGA0FTN00QN5
-# ScIoM7b+vciMsYcA3RSLNrb8PMDr2W28sgV5JiPeYKeAAt9NHJYqzTFyMqGCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUPEoqiOsV6z3bGzSe
+# +aC4oV18htIwDQYJKoZIhvcNAQEBBQAEggEAXtK1g3z5LeeMEGDEEBdhWTi2BZ7m
+# Pfj0j94b6YuWv2aQkJPz7lEJgVAqb0ucXxbpLYTN0q7zKsSLCD6aHEPpTiXNKwG9
+# Li8VIL7qwHcQrs5Q3pKj4OHmqfst/PKipR1waaIGQG0h/1ejlvvGGwGzCI1dwWe8
+# MkZucHrzxfh9E0L6oWC37krm7l8Ecb89LywZIklpa3EKc/cVQFHNKZkYG4QzMWcT
+# fDNldgfbyEK7I+5uyqcmde6uqZKNOTv3HzD3H2Lsa11NeTTfGeTyOUpZ73AopWkm
+# 8edpX2L9QrHxmSPDPpptT3nAZGSw/rfhsaFX+0QXtqE4NzeZAC3XfFl40aGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjIwMjU1WjAvBgkq
-# hkiG9w0BCQQxIgQg+nuMSZgu5Q5CHc21h7Pw/6tZOq8UlVn2H0S5Mib2jUIwDQYJ
-# KoZIhvcNAQEBBQAEggEAawueWoGTa+S50z1Ayi519aegsZi1t52C3ekev/Kc7IZj
-# jMKBEaQMXq/7k4+KYDvF/lu3wZDOFLj1cahx+yKwaPGvqAqhGtHyXb4oV7EuFiGI
-# LlpB1YqIZ/f9ZKXEVTONyqAeWV2QdTvjGVkIBgQhh+F48dvGmjdP0AIgvFaD4F48
-# bmncpQ7N0ueKDR2cKRliZJv49sKmoODfhJVmsLttjNm9hJxX40UbAFN6CjkORfM6
-# qmgz2SQZe0vYKYbBuABl1G0zvQv0QHx+Wk3SF9p+eXd0hd6pP2iTYeyHkp19xaRA
-# JoiyuNpbNHpPVZ0FobWmHH5DvoWF/8TeUPJsNNby/A==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjIyMTA4WjAvBgkq
+# hkiG9w0BCQQxIgQgdo37dzEXOpN+Tfoz3ILo2tY4OKPgZb+u8vNlN830qFUwDQYJ
+# KoZIhvcNAQEBBQAEggEAKqN5caLM4VcYa+XIyG02sZYfjBLN4u6AaTQgbyGA+721
+# brqgolM+5Rj46pZ4D/cMs3bQyQC10ZF0foKjvSlled5PfyOQ2ayH7wp4KyQhLNee
+# hpNqAsUqxJnmKEWHxmXn/amAjnNRpmd3j8Yo2Jpj7m64Z4rkvBLoAIsLMxlcHj03
+# mwiatKWd+YRrTx0RdEpXjLczmTAWMkUdAu6K6/xl6r9NZ7xiBcOA9ZK34eqaXeUD
+# ktYtjd6lYRv2vEznEkxRy96LHM2m9H9LRKEwkTpWgG1IQqbS4kZT1mY2BNIGlRO9
+# oA7DvI5miWXZEbhDE7fuNQduMKJ3YRUE/Rvwd8QZVw==
 # SIG # End signature block
