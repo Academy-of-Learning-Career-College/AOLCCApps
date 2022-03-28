@@ -1,41 +1,104 @@
-#VERSIONS TO CHECK FOR
-$acme = '215.2'
+# Begin Code 
+#Requires -RunAsAdministrator
+#global variables
+$externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
+$langleyip = '66.183.1.50'
+$abbyip = '66.183.152.124'
+$scriptingdir = 'c:\scriptfiles'
 
-
-
-#Get-AppxPackage -Name Microsoft.MicrosoftOfficeHub -ErrorAction SilentlyContinue | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
-
-#Chocolatey
-if ($null -eq $ENV:ChocolateyInstall) {
-	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/ChocolateyInstall.ps1'))
+#check disk size
+if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){
+	Write-Host Adjusting Volumes
+	$size = (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1))
+	Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
 }
-$chocosources= choco source
-$source = Select-String -InputObject $chocosources -Pattern "aolcc_hosted2"
-if ([string]::IsNullOrEmpty($source)){
-Write-Host 'AOLCC Source not set, installing AOLCC source'
-choco source add --source='https://choco.aolccbc.com/' --name='aolcc_hosted2'
-}
-$source = Select-String -InputObject $chocosources -Pattern "choco-proxy"
-if ([string]::IsNullOrEmpty($source)){
-Write-Host 'AOLCC proxy Source not set, installing AOLCC source'
-choco source add --source='https://nexus.aolccbc.com/repository/choco-proxy/' --name='choco-proxy'
-}
-#install K-LiteCodecPack-Standard, Java runtime 8, ACME, and latest version of respondus lockdown browser
-choco upgrade -y k-litecodecpack-standard jre8 acme respondusldb fog
-
-if ((Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\ACME" | Select-Object version).version -lt $acme) {
-	choco install -y --force acme
+# Make sure the scripting dir is there
+if ((Test-Path -Path $scriptingdir) -eq $false) {
+	New-Item -Path $scriptingdir -Type Directory
 }
 
-#Activate Office
-cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /inpkey:B6KBT-DN948-TCMXK-JQH4R-3DC63
-cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
+if ($externalip -eq $langleyip) {$campus = 'Langley'}
+elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
+else {$campus = 'OffSite'}
+
+if ($campus -eq 'Langley') {
+# Do Something specific to Langley here
+
+}
+if ($campus -eq 'Abbotsford') {
+# Do Somthing at the Abbotsford
+}
+if ($campus -ne 'OffSite') {
+	Write-Host "This computer is at the $campus campus"
+	#Set Network to private
+	$net = Get-NetConnectionProfile
+	try {
+		Set-NetConnectionProfile -Name $net.Name -NetworkCategory Private
+	}
+	catch {
+		exit 0
+	}
+	#Install new printer
+	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AOLPrinter.ps1'))
+	#Install Chocolatey
+	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/ChocolateyInstall.ps1'))
+
+	#Update Typing Trainer
+	$github = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Typing'
+	$externalip = (Invoke-WebRequest -Uri 'http://ifconfig.me/ip' -UseBasicParsing).Content
+	$langleyip = '66.183.1.50'
+	$abbyip = '66.183.152.124'
+
+	$cloudloc = $github + '/' + $campus + '/'
+
+	
+	$connectpath = $scriptingdir + '\connect.bat'
+	$typingbatdest = $scriptingdir + '\typingtrainer.bat'
+	$typingbatsrc = $cloudloc + 'typingtrainer.bat'
+	$typingtrainerfolder = 'C:\Program Files (x86)\TypingTrainer'
+	$batchsource = $cloudloc + 'connect.bat'
+	$databasesrc = $cloudloc + 'database.txt'
+
+	
+	Set-Location -LiteralPath $scriptingdir -Verbose
+	Invoke-WebRequest -Uri $batchsource -OutFile $connectpath -Verbose -UseBasicParsing
+	Remove-Item -Path $typingtrainerfolder\database.txt -Force
+	Invoke-WebRequest -Uri $databasesrc -OutFile $typingtrainerfolder\database.txt -Verbose -UseBasicParsing
+	Invoke-WebRequest -Uri $typingbatsrc -OutFile $typingbatdest -Verbose -UseBasicParsing
+
+	#download the client installer to C:\fogtemp\fog.msi
+	$fogmsi = $scriptingdir + "fog.msi"
+	Invoke-WebRequest -URI "http://fogserver./fog/client/download.php?newclient" -UseBasicParsing -OutFile $fogmsi
+	#run the installer with msiexec and pass the command line args of /quiet /qn /norestart
+	Start-Process -FilePath msiexec -ArgumentList @('/i',$fogmsi,'/quiet','/qn','/norestart') -NoNewWindow -Wait;
+
+};
+
+#Fix Chrome Shortcut issues
+
+$chromex86root = "c:\Program Files (x86)\Google\Chrome\Application"
+$chromex64bin = $chromex86root + "\chrome.exe"
+$chromex64 = "c:\Program Files\Google\Chrome\Application"
+
+if ((Test-Path -LiteralPath "$chromex64bin") -eq $false) {
+	if ((Test-Path -LiteralPath "$chromex64bin") -eq $true) {
+		New-Item -ItemType SymbolicLink -Path "$chromex86root" -Target "$chromex64"
+	}
+}
+
+#Manage Software
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
+
+#Set GPO like settings
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Set-GPOLikeThings.ps1'))
+
+# End Code
 
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUdlNFw78PE9b3je1Fc3ilTSJ4
-# 5Muggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUsPhtBIgsd3OMIhLdPFWxKzT1
+# wV6ggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -111,23 +174,23 @@ cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUUZCg3TwrPqL9LmY/
-# dhfENNDI5NYwDQYJKoZIhvcNAQEBBQAEggEAi4ojBArGqS5dOZRGat+gxWq85wEy
-# Lk+26lKMN5SkDpPaxxyhvUILedJAmMmVQmXSaV2UuvRg3EnA+dOZxOxNgIRGm+Ku
-# NHQGFSftvdM+NnrLkljN/k+ZpqsR2QK5vLhypFmhGvy17TKlUHE5dBv8cYzBkUAU
-# CzcSTkLTCwsJ+5BV8R9Y6MWlvxmuTwWCpaqjhRrEwfCobrrakbZhTixcTh4aqZoD
-# PDu46GnMw3hcixc+UvQaqcjUjlg8SceoWTb8s7QwWpiAXMpuDsc/EJjvqvVTj7zj
-# jI5qsV4xrVZtofjJWbbnaCk7ZQ8DfryDMbYD1VR2A6qNAjNOwubxy8Ei96GCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUl1ady/IQNz72D/gm
+# HQqcYpyGSZEwDQYJKoZIhvcNAQEBBQAEggEAjwcwY74EQfM6AirOVtuPdTvj3xGl
+# 6JO3Y1hZqI2tdQ0aJ3u7+ouvyfvNx/8hgFn7hCognA4WFPyaK3pogRY2Bz42yBzb
+# EOi9kksNVHK0UEhf2HQuzpOzrrtZEGUZwWGmNExxODHi+zsPl5fWU8HVdWU0ITu1
+# HoKMhRkGpvTR3VkOkPvImSctKBOkEVhZv3X9Q13NlBVY1B4tqaNq26z1d4tACmdl
+# ltellgF9QgsN8ZI0itBzDcpBBHxTcQR/0JP6W1dHcrjBH7SCZgbNOfFCY6RUwCPO
+# gbnc300RLBlgvxW2rZRkCHQZDPGBAbWqAkiHaVLsOGswEbb7wejlpquMnKGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjAxMjQ3WjAvBgkq
-# hkiG9w0BCQQxIgQg0gY6W+QYFiv5lpnAKWNkT8utUIR/N0aoUYBd5vhH3EYwDQYJ
-# KoZIhvcNAQEBBQAEggEApXlV4Smc8NVMe0Fctzyot5fIVvgKBiaz1ITqomU9QFAp
-# C7a3WTx7t1PX2/2bICDN7xyFlOa9i85QUYcZI3gaIf3TOMd2QvMrTkvJ6C8NEJnF
-# q7TT74XL/pycDboSoEPxIG8wEro1Fj/yMaklNI0DFiT5a2OGhy0Gn3yyaE75uDvh
-# l0rGTh87kI3kPbH0ghSdmWYzRhfMLBCjUKUFmUGhhRKHGXoSCTNnJCUzJVFVFpgX
-# 4W5l74kqtieyE43bHQzgs0J6CjVzECEfPDyAmBlekLUL5aGqSSi4/POyUlLai6Ld
-# Lt6V5XTqP/owdEb4bSPDcf6s6yTxQdFhJbroLByJ7w==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjAxMjQ4WjAvBgkq
+# hkiG9w0BCQQxIgQgwSg8LOumFs0mDNM1xEUtO5+PLZfMVdsP6mRdpVT/TxYwDQYJ
+# KoZIhvcNAQEBBQAEggEAqnFDmID2a5qLy9n8TEapr7Sy1H0JdorXIPC3ew/DeuYQ
+# e13gPZBb8PT8euJczWVianLSJ0u3ewoFWvm4qlQ84DplgnzhhUD99etpLAp2i5sm
+# yYpCTQvrTpg7R02MWykvE4fDOrtw4ZUF3T4X+Z1+QiQtkjSN69vFFLupmLirtbZs
+# 2c2yFd0q3Lr+q4tdCjparLkNDDeaaiIIsjLaLDcKNm0mt6zimpSo39/d7yfTu2eW
+# T8+XXS0hYitoLKhe/vp20S5ljzI6X6zV03pFsHa5QRmYmlqChCm6LzDOLDXZtMfk
+# AKcnUU0ERivKDkz6oYPAGSCjvz0clFV8IR625c7dPQ==
 # SIG # End signature block

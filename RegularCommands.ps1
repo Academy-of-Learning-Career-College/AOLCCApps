@@ -1,13 +1,24 @@
-#Requires -RunAsAdministrator
+# Self-elevate the script if required
+if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
+	if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
+	 $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
+	 Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
+	 Exit
+	}
+   }
+   
+   # Remainder of script here
+
 #global variables
 $externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
 $langleyip = '66.183.1.50'
 $abbyip = '66.183.152.124'
-
+$githubroot = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/'
+$scriptingdir = 'c:\scriptfiles'
 
 #Actual Commands File
 #check disk size
-$env:HOMEDRIVE.Substring(0,1) = 
+
 if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){
 Write-Host Adjusting Volumes
 # Variable specifying the drive you want to extend
@@ -17,14 +28,14 @@ $size = (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1))
 Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
 }
 
-#Schedule a twice daily reboot
-$action = New-ScheduledTaskAction -Execute 'shutdown.exe' -Argument '-f -r -t 30'
-$trigger = @(
-	$(New-ScheduledTaskTrigger -At 5AM -Daily),
-	$(New-ScheduledTaskTrigger -At 8PM -Daily)
-)
-$settings = New-ScheduledTaskSettingsSet -WakeToRun -RunOnlyIfIdle -IdleDuration 05:00:00 -IdleWaitTimeout 06:00:00 -ExecutionTimeLimit (New-TimeSpan -Hours 1)
-Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Reboottwiceaday" -Description "Reboot the computer twice a day to avoid unexpected reboots" -RunLevel Highest -User "NT AUTHORITY\SYSTEM" -Force -Settings $settings
+# #Schedule a twice daily reboot
+# $action = New-ScheduledTaskAction -Execute 'shutdown.exe' -Argument '-f -r -t 30'
+# $trigger = @(
+# 	$(New-ScheduledTaskTrigger -At 5AM -Daily),
+# 	$(New-ScheduledTaskTrigger -At 8PM -Daily)
+# )
+# $settings = New-ScheduledTaskSettingsSet -WakeToRun -RunOnlyIfIdle -IdleDuration 05:00:00 -IdleWaitTimeout 06:00:00 -ExecutionTimeLimit (New-TimeSpan -Hours 1)
+# Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Reboottwiceaday" -Description "Reboot the computer twice a day to avoid unexpected reboots" -RunLevel Highest -User "NT AUTHORITY\SYSTEM" -Force -Settings $settings
 
 
 if ($externalip -eq $langleyip) {
@@ -39,10 +50,10 @@ else {
 
 
 if ($campus -eq 'Langley') {
-#	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-HPPrinter.ps1'))
+#	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-HPPrinter.ps1'))
 }
 if ($campus -eq 'Abbotsford') {
-#	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AbbotsfordLexmark.ps1'))
+#	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AbbotsfordLexmark.ps1'))
 }
 if ($campus -ne 'OffSite') {
 	Write-Host "This computer is at the $cloudloc campus"
@@ -55,15 +66,15 @@ if ($campus -ne 'OffSite') {
 		exit 0
 	}
 	#Install new printer
-	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AOLPrinter.ps1'))
+	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Install-AOLPrinter.ps1"))
+
 	#Install Chocolatey
-	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/ChocolateyInstall.ps1'))
+	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/ChocolateyInstall.ps1"))
 
 	#Update Typing Trainer
-	$github = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Typing'
-	$externalip = (Invoke-WebRequest -Uri 'http://ifconfig.me/ip' -UseBasicParsing).Content
-	$langleyip = '66.183.1.50'
-	$abbyip = '66.183.152.124'
+	
+	$github = $githubroot + 'Typing'
+	
 
 	if ($externalip -eq $langleyip) {$campus = 'Langley'}
 	elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
@@ -71,7 +82,7 @@ if ($campus -ne 'OffSite') {
 
 	$cloudloc = $github + '/' + $campus + '/'
 
-	$scriptingdir = 'c:\scriptfiles'
+	
 	$connectpath = $scriptingdir + '\connect.bat'
 	$typingbatdest = $scriptingdir + '\typingtrainer.bat'
 	$typingbatsrc = $cloudloc + 'typingtrainer.bat'
@@ -102,16 +113,16 @@ if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\ch
 }
 
 #Manage Software
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
 
 #Set GPO like settings
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Set-GPOLikeThings.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Set-GPOLikeThings.ps1'))
 
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUC8YCT7KKWKr0AhnKkgLC2zvJ
-# j6qggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUliK7aWhctXLA1WKOtuy9fM6g
+# mPaggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -187,23 +198,23 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUN4vV1YkaFh+l9u7a
-# mOciP0zRPV8wDQYJKoZIhvcNAQEBBQAEggEACo41f1sJHgKo2CK6jcAAz0cULi4e
-# fOEoWwYaTB03HKWPoZoBYmzqnTLB/NQVHj7a2hlTdVd5IYygVoh1u1vGdV4+ioF7
-# GEGn7amEB1FquT07qwtcO0mohhAi1UHI/+fvnjF3fp1RRSKHV5KmD0wvtKS86HWR
-# YZus8Dakk87YIkX8N8g0FZJYr79188k6r0c7Yqw4DTczuNDcanrQMAIF75etr/kv
-# x/ygduNYCc0pqEKvwol18F6648Ke4DqcSq0LP1J/aJ2XXZ6dQq1tPhtI/VvKm+PZ
-# kqNyoeyzFyYxqMhc0ochOELu8d1D87t4vCGAHf6NSHcGUvkv46qUFqSOX6GCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQU6wacmSQnhH42RMfH
+# ZjjyzDkpBmwwDQYJKoZIhvcNAQEBBQAEggEAKR+u9YkkcLP+NDFoPRCYy05teHsU
+# 8I4INbvwrCteYvXq/PPjQ6axKXqZWe+dvsgSUSsARD14XAts7JHfe0m8Gxl1F3qJ
+# zIu3J4TnYA6UYma4wMOuOA4fAjnrPDNY7LicuSmoP22XKZWOl/gKbp2riNWJG/Nc
+# RLfbbkp1WugQOYnbpi5aWfA5fC5myFFfE51vUqRnr5vwSi2cAkdtiloYF5boxO2n
+# H5DthTsR9DcukfDg45EtTSd5ZOEQSzw1kWjLZduGH0Zw09j5T7E/RYtg5mnUJGu9
+# uAxG9xJRhtL8euOMwtiG59qEZaStQ+5sI8sWvl64NyO6Nz26ku0lKBB7/KGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI1MTUwOTE2WjAvBgkq
-# hkiG9w0BCQQxIgQghxiUCbqd/QrFd2YpApsQEPEilOKcS4589a9IFDQuslgwDQYJ
-# KoZIhvcNAQEBBQAEggEAdjKFZuJP/yj32hvxI7baRq7nCyS1ZOJ/Lt9bq3Nugv0S
-# ftiNOFj7rr3Uahgyi/GDggcEv63FK4JTpua+3eI6Cu/BmZ6UW+QHMJsb7qyAo/l+
-# f1QInMuB4ZrLcTgqJH5HdMS+RBukq3/NsfpFwxuT/+RTm2MNZwhY01ejq0ybwmQs
-# 5dj0y0lyVdPyD+RZpwYVvOF/ZhXw4NcCDnDG5SajmT6V1heFnxLh8Pr6z8ZCGOM6
-# t7/Yw+qxENTUPsBhwkN0HT8q6aYOjbbFjc3yMnRSr9Hm3PXpOtuXTdCNLfbr5Y2z
-# ntlT7f0O0i51N7DZ8ZZavSpSVxLezlWmEQ9m2oiH6A==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjAxMjQ4WjAvBgkq
+# hkiG9w0BCQQxIgQgElYPme1u9oxBrPMyZodGElUGogOjwXghAuQtIF9466kwDQYJ
+# KoZIhvcNAQEBBQAEggEANQ/NNyZRH5NdVRR9OI41yl1CLwbH2ShOq/cTPz+U4wiq
+# tS9K/rd+tFir/nEy5Q8gRn+Wojl7pC/JyJcZPjdkBDdM94R4HvV9z0zDfs3E5+oi
+# +lLy+xQRHkA90qu72jc8GcjBt1M0GfAe6EBnpMLX1s8gENHKGkwREO6Q0EWPXbbL
+# XsmRPnLE/EhJMQLcyMaNcSpnqGV/UlXRH/iPAHcoqd3GvdSYrht4RI2RLLjtUa2k
+# v8uwPRmPpbW2JZ7eOtMzlH9rNRo58spVT3VDGofB/V5netxryWOOZrKEtfcwsyIa
+# Pfybcqi2BJRgAXlr2+lZ/Pb23xh/LIOM4g1c0WQezg==
 # SIG # End signature block
