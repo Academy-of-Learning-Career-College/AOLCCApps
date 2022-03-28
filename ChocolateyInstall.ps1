@@ -29,7 +29,7 @@ $unzipMethod = 'builtin'
 
 # === NO NEED TO EDIT ANYTHING BELOW THIS LINE ===
 # Ensure we can run everything
-Set-ExecutionPolicy Bypass -Scope Process -Force;
+Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue;
 
 # If the repository requires authentication, create the Credential object
 if ((-not [string]::IsNullOrEmpty($repoUsername)) -and (-not [string]::IsNullOrEmpty($repoPassword))) {
@@ -284,12 +284,12 @@ Install-ChocolateyFromPackage $localChocolateyPackageFilePath
 
 
 
-#DONT RUIN ME
+#DONT RUIN M
 # SIG # Begin signature block
 # MIISSwYJKoZIhvcNAQcCoIISPDCCEjgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUoIdpdd0G7OZ/6D668/fiMHJB
-# sCiggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUuAZl+LId6udCDunQa+Jv5abF
+# rCCggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -365,23 +365,23 @@ Install-ChocolateyFromPackage $localChocolateyPackageFilePath
 # VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
 # dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
 # MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUPwJ//G/rJPSvFKry
-# J9dnZyMjmw8wDQYJKoZIhvcNAQEBBQAEggEAWdX3ssEorHALLhyGXVRPeYvMEvjw
-# lF2UVw4GSawu8NtC3Vbkr5bnt2bz1YzYuUi5UQe6mAVpTVa5i3+m4U57bIFG3kMG
-# JjDhaIdUD4hF9KhRQ/xVDBZt3+bLEYb1J5MKmVQ0yfRg2B6vBHRsM5QXVW/u09n4
-# Ls3J1gIubz5oAXQYqFleCOkzIA81MbrccD/KEl78rP/NTPOudi0Vg0FAltjtgutW
-# tqamchRyvOyQpgopxlWws/lQwq56MGNe+P9xfiIVKuqGPgZ/CevWKswFhRX3Vf9D
-# l4yxAgfrpeChhizrSwInmeuoyURnq2VF2h9ZXBsaJC1We4DIJC4tCM1BrqGCAjAw
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUoW5yc0wSkfnvQlY2
+# bWJej3BK1hAwDQYJKoZIhvcNAQEBBQAEggEALPJRn8uSEAvOPOJToueeX1QETNhj
+# /PQmamOcfDnBDFMzHQEZ1rvdtVl/G5V7axNqBtFPgr/K7YKhVntql+QV5LnkGQZq
+# jFJwnX6G7OG+0/a/frVk4HqCbDPUSlS+0YvdMkDfGPrD3cY57u2UMuHC5xUs3XEr
+# TYUwb5w+XkNtxs7mKvHRiN8MjEOSnNKBdbKEmPS1RNkFiz2VEEycmuL9BSP1oMX8
+# Sb6VN2JlgyqW+U6lfUuAp3CcznScARMugCL1SNCcfEQ/CVyAF5CDyPNzkY7h6RkN
+# 6oWHSnGnHz18+OQi8EHWjwk+bj/ZWYTtau3knPMgaVpK12gT88CMjtkXcaGCAjAw
 # ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
 # A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
 # LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
 # AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
-# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjAxMzE0WjAvBgkq
-# hkiG9w0BCQQxIgQgf+nWqv/rczy4ENta7U+JDiIiOaa2ARQRwXtuAqYX8/owDQYJ
-# KoZIhvcNAQEBBQAEggEATl1SmWXs2Zm5di23ndhujBSrZ5wQDStF+ehL2t8UtaeR
-# B+ff4vF3SWgjDKsj2GnFu4d4+fPaJOFS1uNHttmt82sXCLCw+m3f0B0dliSpXVev
-# RBbyDnLWFc+216z5hd+AzH8sJ2XtL/PKanyNToTDSFa3u7D3PCgihtycYRIjhfJy
-# f9gR3yptwgXRHTHP8r8sMQb+nSs1/zq9QgwXyaLhf6BUvfh5Jx7AlGfqmH90h3qg
-# 5qLMpvCuVnMmOqDngto+6SWe/joJRD6f+Y0yNa9YlHmYmjM8oPpDepnLoePyirps
-# XlZxa02MC9IoRZvAKoVMO8xmsncF4+jdmLS2bPHCQw==
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjAxNDEyWjAvBgkq
+# hkiG9w0BCQQxIgQguXGwM0smBnGYb8meI9atSggYEmdw6kcbSvzAixT+pGswDQYJ
+# KoZIhvcNAQEBBQAEggEABURQb7YvRWBWDWO+7j6ZEz3K0RXFdQyVZfNYrcfagrjU
+# xWEupyF531e/xWeq7SgwIhE87aMRcewO3LBiuWaK72zv0W46kzVTlYd1ZgFL0F+d
+# ZIAXAxlen8aYTbLic3oQyFFRxtM28J+36J7ehN8STfdMgtBdsQ4Z06un+xrvV6RC
+# ayQ/tcIvrgiy+0yT2f6/VnBcY+23ML7oo2bEVJNAmO6hTxiCfRYL5eSwr0Fv7Yi9
+# qALdjKzEJgvb5d080MHwfHRcFU3fU+Czy6Ah5LB6sgzjy1RgWAJlSks2VM55YXkM
+# tVdQBpkrWkOL5qQtKFoizIzQud1whKDGPasAlOHQwQ==
 # SIG # End signature block
