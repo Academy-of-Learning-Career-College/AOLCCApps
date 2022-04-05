@@ -1,77 +1,151 @@
-#Requires -RunAsAdministrator
+# Self-elevate the script if required
+if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
+	if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
+	 $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
+	 Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
+	 Exit
+	}
+   }
+   
+   # Remainder of script here
+
+   $scriptingdir = $env:systemdrive + "\scriptfiles"
+   $timestamp = Get-Date -Format "ddMMyyyyHHmm"
+   try {
+   if ((Test-Path -Path $scriptingdir) -eq $false) {
+	   New-Item -Path $scriptingdir -Type Directory -Force
+	   
+   }
+   $logfile = $scriptingdir + "\RegularCommands." + $timestamp + ".log"	
+   }
+	   catch {
+	   $logfile = $env:SystemDrive + "\RegularCommands." + $timestamp + ".log"
+	   $scriptingdir = $env:TEMP
+	   }
+   #Set our log file
+   Start-Transcript -Path $logfile -Append -Verbose
+
+function New-WifiProfile {
+
+   param(
+    [string]$SSID,
+    [string]$PSK
+)
+$guid = New-Guid
+$HexArray = $ssid.ToCharArray() | foreach-object { [System.String]::Format("{0:X}", [System.Convert]::ToUInt32($_)) }
+$HexSSID = $HexArray -join ""
+@"
+<?xml version="1.0"?>
+<WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
+    <name>$($SSID)</name>
+    <SSIDConfig>
+        <SSID>
+            <hex>$($HexSSID)</hex>
+            <name>$($SSID)</name>
+        </SSID>
+    </SSIDConfig>
+    <connectionType>ESS</connectionType>
+    <connectionMode>auto</connectionMode>
+    <MSM>
+        <security>
+            <authEncryption>
+                <authentication>WPA2PSK</authentication>
+                <encryption>AES</encryption>
+                <useOneX>false</useOneX>
+            </authEncryption>
+            <sharedKey>
+                <keyType>passPhrase</keyType>
+                <protected>false</protected>
+                <keyMaterial>$($PSK)</keyMaterial>
+            </sharedKey>
+        </security>
+    </MSM>
+    <MacRandomization xmlns="http://www.microsoft.com/networking/WLAN/profile/v3">
+        <enableRandomization>false</enableRandomization>
+        <randomizationSeed>1451755948</randomizationSeed>
+    </MacRandomization>
+</WLANProfile>
+"@ | out-file "$($ENV:TEMP)\$guid.SSID"
+ 
+netsh wlan add profile filename="$($ENV:TEMP)\$guid.SSID" user=all
+ 
+remove-item "$($ENV:TEMP)\$guid.SSID" -Force
+}
+#connectoabbotsfordwifi
+try {
+	Write-Host Connecting to Wifi
+New-WifiProfile -SSID "STAFF24g" -PSK "aolcc0404"
+}
+catch {
+	Write-Host No Wifi card installed, skipping
+}
 #global variables
+
+
+
+
 $externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
 $langleyip = '66.183.1.50'
 $abbyip = '66.183.152.124'
+try {
+if ($externalip -eq $langleyip) {$campus = 'Langley'}
+elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
+else {$campus = 'OffSite'}
+Write-Host This computer is located at the $campus campus
+}
+catch {
+	Write-host This computer is not connected to the internet
+}
+
+$githubroot = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/'
 
 
 #Actual Commands File
 #check disk size
-$env:HOMEDRIVE.Substring(0,1) = 
-if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){
-Write-Host Adjusting Volumes
-# Variable specifying the drive you want to extend
-#$env:HOMEDRIVE.Substring(0,1) = "C"
-# Script to get the partition sizes and then resize the volume
-$size = (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1))
-Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
-}
 
-#Schedule a twice daily reboot
-$action = New-ScheduledTaskAction -Execute 'shutdown.exe' -Argument '-f -r -t 30'
-$trigger = @(
-	$(New-ScheduledTaskTrigger -At 5AM -Daily),
-	$(New-ScheduledTaskTrigger -At 8PM -Daily)
-)
-$settings = New-ScheduledTaskSettingsSet -WakeToRun -RunOnlyIfIdle -IdleDuration 05:00:00 -IdleWaitTimeout 06:00:00 -ExecutionTimeLimit (New-TimeSpan -Hours 1)
-Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Reboottwiceaday" -Description "Reboot the computer twice a day to avoid unexpected reboots" -RunLevel Highest -User "NT AUTHORITY\SYSTEM" -Force -Settings $settings
-
-
-if ($externalip -eq $langleyip) {
-	$campus = 'Langley'
-}
-elseif ($externalip -eq $abbyip) {
-	$campus = 'Abbotsford'
-}
-else {
-	$campus = 'OffSite'
-}
-
-
-if ($campus -eq 'Langley') {
-#	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-HPPrinter.ps1'))
-}
-if ($campus -eq 'Abbotsford') {
-#	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AbbotsfordLexmark.ps1'))
-}
-if ($campus -ne 'OffSite') {
-	Write-Host "This computer is at the $cloudloc campus"
-	#Set Network to private
-	$net = Get-NetConnectionProfile
-	try {
-		Set-NetConnectionProfile -Name $net.Name -NetworkCategory Private
+try {
+	if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){
+	Write-Host Adjusting Volumes
+	$size = (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1))
+	Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
+		}
 	}
 	catch {
-		exit 0
+		Write-Host No need to extend the drive
 	}
+
+try {
+	$drives = Get-Volume | Where DriveType -eq 'Fixed'
+	foreach($drive in $drives) {
+		
+			Write-Host Optmizing this drive: $drive.Path
+			Optimize-Volume -ReTrim $drive
+		
+	}
+}
+catch {
+	
+}
+	
+# if ($campus -eq 'Langley') { }
+# if ($campus -eq 'Abbotsford') { }
+
+if ($campus -ne 'OffSite') {
+	#Set Network to private
+	$net = Get-NetConnectionProfile
+	try {Set-NetConnectionProfile -Name $net.Name -NetworkCategory Private}
+	catch {exit 0}
 	#Install new printer
-	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AOLPrinter.ps1'))
+	
+	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Install-AOLPrinter.ps1"))
+
 	#Install Chocolatey
-	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/ChocolateyInstall.ps1"))
 
 	#Update Typing Trainer
-	$github = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Typing'
-	$externalip = (Invoke-WebRequest -Uri 'http://ifconfig.me/ip' -UseBasicParsing).Content
-	$langleyip = '66.183.1.50'
-	$abbyip = '66.183.152.124'
-
-	if ($externalip -eq $langleyip) {$campus = 'Langley'}
-	elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
-	else {$campus = 'OffSite'}
-
+	# Set our variables
+	$github = $githubroot + 'Typing'
 	$cloudloc = $github + '/' + $campus + '/'
-
-	$scriptingdir = 'c:\scriptfiles'
 	$connectpath = $scriptingdir + '\connect.bat'
 	$typingbatdest = $scriptingdir + '\typingtrainer.bat'
 	$typingbatsrc = $cloudloc + 'typingtrainer.bat'
@@ -79,9 +153,7 @@ if ($campus -ne 'OffSite') {
 	$batchsource = $cloudloc + 'connect.bat'
 	$databasesrc = $cloudloc + 'database.txt'
 
-	if ((Test-Path -Path $scriptingdir) -eq $false) {
-    	New-Item -Path $scriptingdir -Type Directory
-	}
+	
 	Set-Location -LiteralPath $scriptingdir -Verbose
 	Invoke-WebRequest -Uri $batchsource -OutFile $connectpath -Verbose -UseBasicParsing
 	Remove-Item -Path $typingtrainerfolder\database.txt -Force
@@ -95,6 +167,7 @@ if ($campus -ne 'OffSite') {
 
 };
 
+#fix chrome shortcuts
 if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\chrome.exe") -eq $false) {
 	if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\chrome.exe") -eq $true) {
 		New-Item -ItemType SymbolicLink -Path "c:\Program Files (x86)\Google\Chrome\Application" -Target "c:\Program Files\Google\Chrome\Application"
@@ -102,16 +175,21 @@ if ((Test-Path -LiteralPath "c:\Program Files (x86)\Google\Chrome\Application\ch
 }
 
 #Manage Software
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Manage-Software.ps1"))
 
 #Set GPO like settings
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Set-GPOLikeThings.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("$githubroot/Set-GPOLikeThings.ps1"))
 
 # SIG # Begin signature block
 # MIIWgAYJKoZIhvcNAQcCoIIWcTCCFm0CAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+<<<<<<< HEAD
 # AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU1vAKMmznXOdN4YcKylVaxBj1
 # u/qgghDaMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+=======
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUfEj/kzRbFwBhMH5om7B+ZBFs
+# jtGggg2VMIIDWjCCAkKgAwIBAgIQVE1UkhnbkL1Em0JU5EuTajANBgkqhkiG9w0B
+>>>>>>> 844e5c8893c1000b9277b09aa8d34f07b655f4ce
 # AQsFADA3MTUwMwYDVQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2Rl
 # IFNpZ25pbmcgQ2VydDAeFw0yMjAyMTExNzU0MTZaFw0yMzAyMTExODE0MTZaMDcx
 # NTAzBgNVBAMMLEFjYWRlbXkgb2YgTGVhcm5pbmcgTS5Sb3NzIENvZGUgU2lnbmlu
@@ -129,6 +207,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 # jqRWchuPtCCiSVBIv28H7X8sUJAI/3nrHO2a2s74BI181LIhI6ovvndA3ZsRB/0t
 # 2GVyt5LPqNfSl+G1NPkHMGJZmIwyIUBfITvPSEqHCeDhZJoh3vjemJZINwaFjDOk
 # iaApO33MoXK4hdpcZJe8WvzveR3TQGFRdMjJhT8ysN+hqDXwjArPPonKoGHshNa+
+<<<<<<< HEAD
 # D1eO3jCCBq4wggSWoAMCAQICEAc2N7ckVHzYR6z9KGYqXlswDQYJKoZIhvcNAQEL
 # BQAwYjELMAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UE
 # CxMQd3d3LmRpZ2ljZXJ0LmNvbTEhMB8GA1UEAxMYRGlnaUNlcnQgVHJ1c3RlZCBS
@@ -229,4 +308,83 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 # WrVoINB83FsI0yw8Zbe9ygIAuzkVIZLgTUhtKGhx+FCWbO6UTH9X/UgJ8j+czKCS
 # f9YjIDqQyvVFNkwxkLC7npnvy+7nvz3OtakGRffx47AN/6eMvLoOay1cdhE9Vdjm
 # b70a9A==
+=======
+# D1eO3jCCBP4wggPmoAMCAQICEA1CSuC+Ooj/YEAhzhQA8N0wDQYJKoZIhvcNAQEL
+# BQAwcjELMAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UE
+# CxMQd3d3LmRpZ2ljZXJ0LmNvbTExMC8GA1UEAxMoRGlnaUNlcnQgU0hBMiBBc3N1
+# cmVkIElEIFRpbWVzdGFtcGluZyBDQTAeFw0yMTAxMDEwMDAwMDBaFw0zMTAxMDYw
+# MDAwMDBaMEgxCzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5EaWdpQ2VydCwgSW5jLjEg
+# MB4GA1UEAxMXRGlnaUNlcnQgVGltZXN0YW1wIDIwMjEwggEiMA0GCSqGSIb3DQEB
+# AQUAA4IBDwAwggEKAoIBAQDC5mGEZ8WK9Q0IpEXKY2tR1zoRQr0KdXVNlLQMULUm
+# EP4dyG+RawyW5xpcSO9E5b+bYc0VkWJauP9nC5xj/TZqgfop+N0rcIXeAhjzeG28
+# ffnHbQk9vmp2h+mKvfiEXR52yeTGdnY6U9HR01o2j8aj4S8bOrdh1nPsTm0zinxd
+# RS1LsVDmQTo3VobckyON91Al6GTm3dOPL1e1hyDrDo4s1SPa9E14RuMDgzEpSlwM
+# MYpKjIjF9zBa+RSvFV9sQ0kJ/SYjU/aNY+gaq1uxHTDCm2mCtNv8VlS8H6GHq756
+# WwogL0sJyZWnjbL61mOLTqVyHO6fegFz+BnW/g1JhL0BAgMBAAGjggG4MIIBtDAO
+# BgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAWBgNVHSUBAf8EDDAKBggrBgEF
+# BQcDCDBBBgNVHSAEOjA4MDYGCWCGSAGG/WwHATApMCcGCCsGAQUFBwIBFhtodHRw
+# Oi8vd3d3LmRpZ2ljZXJ0LmNvbS9DUFMwHwYDVR0jBBgwFoAU9LbhIB3+Ka7S5GGl
+# sqIlssgXNW4wHQYDVR0OBBYEFDZEho6kurBmvrwoLR1ENt3janq8MHEGA1UdHwRq
+# MGgwMqAwoC6GLGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9zaGEyLWFzc3VyZWQt
+# dHMuY3JsMDKgMKAuhixodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vc2hhMi1hc3N1
+# cmVkLXRzLmNybDCBhQYIKwYBBQUHAQEEeTB3MCQGCCsGAQUFBzABhhhodHRwOi8v
+# b2NzcC5kaWdpY2VydC5jb20wTwYIKwYBBQUHMAKGQ2h0dHA6Ly9jYWNlcnRzLmRp
+# Z2ljZXJ0LmNvbS9EaWdpQ2VydFNIQTJBc3N1cmVkSURUaW1lc3RhbXBpbmdDQS5j
+# cnQwDQYJKoZIhvcNAQELBQADggEBAEgc3LXpmiO85xrnIA6OZ0b9QnJRdAojR6Or
+# ktIlxHBZvhSg5SeBpU0UFRkHefDRBMOG2Tu9/kQCZk3taaQP9rhwz2Lo9VFKeHk2
+# eie38+dSn5On7UOee+e03UEiifuHokYDTvz0/rdkd2NfI1Jpg4L6GlPtkMyNoRdz
+# DfTzZTlwS/Oc1np72gy8PTLQG8v1Yfx1CAB2vIEO+MDhXM/EEXLnG2RJ2CKadRVC
+# 9S0yOIHa9GCiurRS+1zgYSQlT7LfySmoc0NR2r1j1h9bm/cuG08THfdKDXF+l7f0
+# P4TrweOjSaH6zqe/Vs+6WXZhiV9+p7SOZ3j5NpjhyyjaW4emii8wggUxMIIEGaAD
+# AgECAhAKoSXW1jIbfkHkBdo2l8IVMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
+# AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2Vy
+# dC5jb20xJDAiBgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0x
+# NjAxMDcxMjAwMDBaFw0zMTAxMDcxMjAwMDBaMHIxCzAJBgNVBAYTAlVTMRUwEwYD
+# VQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xMTAv
+# BgNVBAMTKERpZ2lDZXJ0IFNIQTIgQXNzdXJlZCBJRCBUaW1lc3RhbXBpbmcgQ0Ew
+# ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC90DLuS82Pf92puoKZxTlU
+# KFe2I0rEDgdFM1EQfdD5fU1ofue2oPSNs4jkl79jIZCYvxO8V9PD4X4I1moUADj3
+# Lh477sym9jJZ/l9lP+Cb6+NGRwYaVX4LJ37AovWg4N4iPw7/fpX786O6Ij4YrBHk
+# 8JkDbTuFfAnT7l3ImgtU46gJcWvgzyIQD3XPcXJOCq3fQDpct1HhoXkUxk0kIzBd
+# vOw8YGqsLwfM/fDqR9mIUF79Zm5WYScpiYRR5oLnRlD9lCosp+R1PrqYD4R/nzEU
+# 1q3V8mTLex4F0IQZchfxFwbvPc3WTe8GQv2iUypPhR3EHTyvz9qsEPXdrKzpVv+T
+# AgMBAAGjggHOMIIByjAdBgNVHQ4EFgQU9LbhIB3+Ka7S5GGlsqIlssgXNW4wHwYD
+# VR0jBBgwFoAUReuir/SSy4IxLVGLp6chnfNtyA8wEgYDVR0TAQH/BAgwBgEB/wIB
+# ADAOBgNVHQ8BAf8EBAMCAYYwEwYDVR0lBAwwCgYIKwYBBQUHAwgweQYIKwYBBQUH
+# AQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYI
+# KwYBBQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFz
+# c3VyZWRJRFJvb3RDQS5jcnQwgYEGA1UdHwR6MHgwOqA4oDaGNGh0dHA6Ly9jcmw0
+# LmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RDQS5jcmwwOqA4oDaG
+# NGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
+# QS5jcmwwUAYDVR0gBEkwRzA4BgpghkgBhv1sAAIEMCowKAYIKwYBBQUHAgEWHGh0
+# dHBzOi8vd3d3LmRpZ2ljZXJ0LmNvbS9DUFMwCwYJYIZIAYb9bAcBMA0GCSqGSIb3
+# DQEBCwUAA4IBAQBxlRLpUYdWac3v3dp8qmN6s3jPBjdAhO9LhL/KzwMC/cWnww4g
+# Qiyvd/MrHwwhWiq3BTQdaq6Z+CeiZr8JqmDfdqQ6kw/4stHYfBli6F6CJR7Euhx7
+# LCHi1lssFDVDBGiy23UC4HLHmNY8ZOUfSBAYX4k4YU1iRiSHY4yRUiyvKYnleB/W
+# CxSlgNcSR3CzddWThZN+tpJn+1Nhiaj1a5bA9FhpDXzIAbG5KHW3mWOFIoxhynmU
+# fln8jA/jb7UBJrZspe6HUSHkWGCbugwtK22ixH67xCUrRwIIfEmuE7bhfEJCKMYY
+# Vs9BNLZmXbZ0e/VWMyIvIjayS6JKldj1po5SMYIEIDCCBBwCAQEwSzA3MTUwMwYD
+# VQQDDCxBY2FkZW15IG9mIExlYXJuaW5nIE0uUm9zcyBDb2RlIFNpZ25pbmcgQ2Vy
+# dAIQVE1UkhnbkL1Em0JU5EuTajAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
+# MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
+# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUMud76EuQI+IHT4Lm
+# sJ2wHbg9i1kwDQYJKoZIhvcNAQEBBQAEggEABeVcz1oOFvmKMXL0MZ5BQQBbgvuq
+# fAo43hn0zeL7xONxrQBE98YcWLobP2e7ZBJS7rfMBj6fD8Dk4YZafUZjU24tcQGi
+# YNdwny8L1c2UL900UNrkNAKBKwYyu38CXqaBfZVoZqf61wIMZ7U2xo0wN4U9aB36
+# jjI4MwOWbOkfjDNgvqtOgn/ZIKiPwIkBNVa3WK4GV+vbsk3CDNz79F+yAG5ey8OJ
+# +AZ+oky4S7cv7b2TSdhVll2AoPMm0zZIX/8XC06CcpDGQq+CuoC0sczcST2ysu+V
+# OpwqGtIISNMKIH6wSwtJGVW2e23DEnxurW1sYz2KQ4pi/aRe950sKayu8qGCAjAw
+# ggIsBgkqhkiG9w0BCQYxggIdMIICGQIBATCBhjByMQswCQYDVQQGEwJVUzEVMBMG
+# A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEw
+# LwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgVGltZXN0YW1waW5nIENB
+# AhANQkrgvjqI/2BAIc4UAPDdMA0GCWCGSAFlAwQCAQUAoGkwGAYJKoZIhvcNAQkD
+# MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjIwMzI4MjMwMTMxWjAvBgkq
+# hkiG9w0BCQQxIgQgDXBROweSfFl1lCIhruPMr4zMNpOIjbsVy0/sbhlYc6kwDQYJ
+# KoZIhvcNAQEBBQAEggEAvctNHcMydtU4wY3nACEHZOYb5JT5WIfW1DWbaUcu8lMc
+# OsizFL4WznpSfStWsymyBF7ykSU9815xNM/NGIUmeyvIYG/DhpkYQfqwQMeDiMlu
+# QTXHDCStMDT4aDyIKaYdlibK2GqRNUxv+WHmZxoBWvN4OIuNyMCYTB7guEA7Sc63
+# sdXJ0lB3cDmPJUVMmE18AO9GFh59MWiUC0gGdGCLXEQlCMDwl2cbay7NySoPv6Y2
+# CiNLqvD8l8JWzB01cANc898NsEL4v+C8sJka1WsNhBANqfiiuTB5BH55zwL7z3bF
+# uHte+jY/h5FwEvyNNBk/OVvUqGA4eoyBkEiJcZBJjQ==
+>>>>>>> 844e5c8893c1000b9277b09aa8d34f07b655f4ce
 # SIG # End signature block
