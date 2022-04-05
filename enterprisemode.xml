@@ -1,0 +1,10 @@
+<site-list version="3">
+  <site url="https://www.privatetraininginstitutions.gov.bc.ca/sites/www.privatetraininginstitutions.gov.bc.ca/files/files/Institution_application.pdf">
+    <compat-mode>IE11</compat-mode>
+    <open-in allow-redirect="true">IE11</open-in>
+  </site>
+  <site url="http://192.168.2.150/">
+    <compat-mode>Default</compat-mode>
+    <open-in allow-redirect="true">IE11</open-in>
+  </site>
+</site-list>

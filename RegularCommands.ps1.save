@@ -1,0 +1,28 @@
+#Actual Commands File
+Write-Host Setting Registry Values
+
+if((Test-Path -LiteralPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU") -ne $true) {  New-Item "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -force -ea SilentlyContinue };
+New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' -Name 'NoAutoRebootWithLoggedOnUsers' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
+
+if((Test-Path -LiteralPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive") -ne $true) {  New-Item "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -force -ea SilentlyContinue };
+New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive' -Name 'DisableFileSync' -Value 0 -PropertyType DWord -Force -ea SilentlyContinue;
+New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive' -Name 'DisableFileSyncNGSC' -Value 0 -PropertyType DWord -Force -ea SilentlyContinue;
+
+if((Test-Path -LiteralPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell") -ne $true) {  New-Item "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell" -force -ea SilentlyContinue };
+if((Test-Path -LiteralPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging") -ne $true) {  New-Item "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -force -ea SilentlyContinue };
+New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell' -Name 'EnableScripts' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
+New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell' -Name 'ExecutionPolicy' -Value 'Unrestricted' -PropertyType String -Force -ea SilentlyContinue;
+New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging' -Name 'EnableScriptBlockLogging' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
+
+if((Test-Path -LiteralPath "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System") -ne $true) {  New-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -force -ea SilentlyContinue };
+New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorUser' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
+
+#Remove Old LockDown Browser
+
+if((Test-Path -LiteralPath "C:\Program Files (x86)\InstallShield Installation Information\{BBC7F69B-7A94-41E9-8A4B-B55A8D06431F}\setup.exe") -eq $true) {
+wget -Uri https://www.aolccbc.com/downloads/oldversions.iss -Outfile c:\scriptfiles\oldversions.iss
+cmd /c "C:\Program Files (x86)\InstallShield Installation Information\{BBC7F69B-7A94-41E9-8A4B-B55A8D06431F}\setup.exe" -runfromtemp -l0x0409  -removeonly -s -f1 "c:\scriptfiles\oldversions.iss" };
+if((Test-Path -LiteralPath "C:\Program Files (x86)\InstallShield Installation Information\{EEDFE0FF-CB95-46D9-9050-F768B126ABDB}\setup.exe") -eq $true) { wget -Uri https://www.aolccbc.com/downloads/LockDown20701.zip -Outfile c:\scriptfiles\LockDown20701.zip 
+Expand-Archive c:\scriptfiles\LockDown20701.zip
+
+c:\scriptfiles\LockDown20701\setup.exe -s -f1 "c:\scriptfiles\LockDown20701\setup.iss"}
