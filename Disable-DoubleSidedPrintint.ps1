@@ -1,0 +1,1 @@
+Get-Printer *canon* | Set-PrintConfiguration -DuplexingMode OneSided
