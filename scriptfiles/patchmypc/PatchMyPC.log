@@ -1,0 +1,54 @@
+4/22/2021 9:34:33 AM - Patch My PC Started
+4/22/2021 9:34:33 AM - Patch My PC running with command line option: /s 
+4/22/2021 9:34:33 AM - Checking connection to patchmypc.com
+4/22/2021 9:34:33 AM - Verified connection to patchmypc.com. Status Code: 200
+4/22/2021 9:34:33 AM - Getting latest definitions from patchmypc.com
+4/22/2021 9:34:33 AM - Definition load completed in: 0.17 seconds
+4/22/2021 9:34:33 AM - Microsoft.Win32.TaskScheduler.dll not found in Global Assembly Cache
+4/22/2021 9:34:33 AM - Downloading: https://patchmypc.com/freeupdater/applications/taskscheduler/gacutil.exe to C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\gacutil.exe
+4/22/2021 9:34:33 AM - Patch My PC version 4.2.0.1 is running. The latest is 4.2.0.3
+4/22/2021 9:34:33 AM - Patch My PC Update needed downloading http://patchmypc.com/freeupdater/updates/patchmypc/PatchMyPCUpdater.exe to C:\PatchMyPCUpdates\PatchMyPCUpdater.exe
+4/22/2021 9:34:33 AM - Downloading: https://patchmypc.com/freeupdater/applications/taskscheduler/gacutil.exe.config to C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\gacutil.exe.config
+4/22/2021 9:34:33 AM - Updater found starting process: C:\PatchMyPCUpdates\PatchMyPCUpdater.exe Switches: /s 
+4/22/2021 9:34:33 AM - Downloading: https://patchmypc.com/freeupdater/applications/taskscheduler/gacutlrc.dll to C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\1033\gacutlrc.dll
+4/22/2021 9:34:33 AM - Closing main PatchMyPC.exe process
+4/22/2021 9:34:37 AM - Patch My PC Started
+4/22/2021 9:34:37 AM - Patch My PC running with command line option: /s 
+4/22/2021 9:34:37 AM - Checking connection to patchmypc.com
+4/22/2021 9:34:37 AM - Verified connection to patchmypc.com. Status Code: 200
+4/22/2021 9:34:37 AM - Getting latest definitions from patchmypc.com
+4/22/2021 9:34:38 AM - Definition load completed in: 0.39 seconds
+4/22/2021 9:34:38 AM - Microsoft.Win32.TaskScheduler.dll not found in Global Assembly Cache
+4/22/2021 9:34:38 AM - Downloading: https://patchmypc.com/freeupdater/applications/taskscheduler/gacutil.exe to C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\gacutil.exe
+4/22/2021 9:34:38 AM - Patch My PC version 4.2.0.3 is running. The latest is 4.2.0.3
+4/22/2021 9:34:38 AM - Performing scan of installed applications
+4/22/2021 9:34:38 AM - Downloading: https://patchmypc.com/freeupdater/applications/taskscheduler/gacutil.exe.config to C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\gacutil.exe.config
+4/22/2021 9:34:38 AM - Downloading: https://patchmypc.com/freeupdater/applications/taskscheduler/gacutlrc.dll to C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\1033\gacutlrc.dll
+4/22/2021 9:34:38 AM - Downloading: https://patchmypc.com/freeupdater/applications/taskschedulerv4.0/Microsoft.Win32.TaskScheduler.dll to C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\Microsoft.Win32.TaskScheduler.dll
+4/22/2021 9:34:38 AM - Running: C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\gacutil.exe /i C:\Windows\system32\config\systemprofile\AppData\Roaming\PatchMyPC\Microsoft.Win32.TaskScheduler.dll
+4/22/2021 9:34:38 AM - Error loading Microsoft.Win32.TaskScheduler.dll Could not load file or assembly 'Microsoft.Win32.TaskScheduler, Version=2.5.28.0, Culture=neutral, PublicKeyToken=0d013ddd5178a2ae' or one of its dependencies. The system cannot find the file specified.
+4/22/2021 9:34:38 AM - Scan completed in: 0.64 seconds
+4/22/2021 9:34:39 AM - Starting to perform updates silently since /silent switch used
+4/22/2021 9:34:40 AM - Patch My PC 4.2.0.3 | Definitions: 22-Apr-2021 | 4/22/2021 9:34:40 AM
+
+4/22/2021 9:34:40 AM - Run With /S  Switch
+4/22/2021 9:34:40 AM - OS: Microsoft Windows 10 Education N x64
+
+4/22/2021 9:34:40 AM - 10 App(s) to install or update...
+4/22/2021 9:34:40 AM - Download URL: http://fpdownload.adobe.com/get/flashplayer/pdc/32.0.0.465/install_flash_player_ppapi.exe
+4/22/2021 9:34:40 AM - Download Path: C:\PatchMyPCUpdates\Adobe Flash PPAPI 32.0.0.465.exe
+4/22/2021 9:34:40 AM - Download size: 0.11 MB
+4/22/2021 9:34:40 AM - Download Starting for: http://fpdownload.adobe.com/get/flashplayer/pdc/32.0.0.465/install_flash_player_ppapi.exe
+4/22/2021 9:34:40 AM - Total download time in seconds: 0.22
+4/22/2021 9:34:40 AM - Install Command: -install
+4/22/2021 9:34:40 AM - Adobe Flash PPAPI 32.0.0.465 Downloaded Successfully
+4/22/2021 9:34:40 AM - Silently install Adobe Flash PPAPI 32.0.0.465
+8/31/2021 10:06:23 AM - Patch My PC Self Updater 1.1.0.0 Started
+8/31/2021 10:06:23 AM - Beta Channel not enabled
+8/31/2021 10:06:23 AM - Download URL: https://patchmypc.com/freeupdater/PatchMyPC.zip
+8/31/2021 10:06:23 AM - Deleting current Patch My PC File: C:\scriptfiles\patchmypc\PatchMyPC.exe
+8/31/2021 10:06:23 AM - Deletion successful
+8/31/2021 10:06:24 AM - Starting download of https://patchmypc.com/freeupdater/PatchMyPC.zip to C:\Windows\TEMP\ppporhs3\PMPHomeUpdater.zip
+8/31/2021 10:06:24 AM - Download complete
+8/31/2021 10:06:25 AM - Starting: C:\scriptfiles\patchmypc\PatchMyPC.exe /s 
+8/31/2021 10:06:25 AM - Patch My PC Self Updater complete now closing

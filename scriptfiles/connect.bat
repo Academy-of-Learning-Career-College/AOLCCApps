@@ -1,0 +1,1 @@
+net use \\192.168.2.230\ttdata /user:smbguest password

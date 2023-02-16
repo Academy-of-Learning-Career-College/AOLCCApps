@@ -1,0 +1,18 @@
+<Configuration>
+
+  <Add OfficeClientEdition="64" >
+    <Product ID="ProPlusRetail" PIDKEY="YN8K7-RFY7G-JFP3M-W69DV-3JYG7">
+      <Language ID="en-us" />
+    </Product>
+    
+  </Add> 
+
+  <Updates Enabled="TRUE"/> 
+
+  <Display Level="None" AcceptEULA="TRUE" /> 
+
+  <Logging Path="%temp%" />
+
+  <Property Name="AUTOACTIVATE" Value="1" />
+
+</Configuration>

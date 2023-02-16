@@ -1,0 +1,10 @@
+[InstallShield Silent]
+Version=v7.00
+File=Log File
+[ResponseResult]
+ResultCode=0
+[Application]
+Name=Respondus LockDown Browser 2 - Lab Edition
+Version=2.00.0000
+Company=Respondus
+Lang=0409

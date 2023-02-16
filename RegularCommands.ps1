@@ -1,25 +1,21 @@
 # Begin Code 
 #Requires -RunAsAdministrator
 #global variables
-$externalip = (Invoke-WebRequest -Uri "http://ifconfig.me/ip" -UseBasicParsing).Content
-$langleyip = '66.183.1.50'
-$abbyip = '66.183.152.124'
+$campus = (Invoke-WebRequest -Uri "https://ip.aolccbc.com/campus" -UseBasicParsing).Content
+# $langleyip = '66.183.1.50'
+# $abbyip = '207.216.117.232'
 $scriptingdir = 'c:\scriptfiles'
 
 #check disk size
-if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){
-	Write-Host Adjusting Volumes
-	$size = (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1))
-	Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size $size.SizeMax
-}
+if ((Get-Volume -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeRemaining / (1e+9) -lt "1"){Resize-Partition -DriveLetter $env:HOMEDRIVE.Substring(0,1) -Size (Get-PartitionSupportedSize -DriveLetter $env:HOMEDRIVE.Substring(0,1)).SizeMax}
 # Make sure the scripting dir is there
 if ((Test-Path -Path $scriptingdir) -eq $false) {
 	New-Item -Path $scriptingdir -Type Directory
 }
 
-if ($externalip -eq $langleyip) {$campus = 'Langley'}
-elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
-else {$campus = 'OffSite'}
+# if ($externalip -eq $langleyip) {$campus = 'Langley'}
+# elseif ($externalip -eq $abbyip) {$campus = 'Abbotsford'}
+# else {$campus = 'OffSite'}
 
 if ($campus -eq 'Langley') {
 # Do Something specific to Langley here
@@ -39,15 +35,15 @@ if ($campus -ne 'OffSite') {
 		exit 0
 	}
 	#Install new printer
-	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AOLPrinter.ps1'))
+	# Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Install-AOLPrinter.ps1'))
 	#Install Chocolatey
-	Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/ChocolateyInstall.ps1'))
+	# Set-ExecutionPolicy RemoteSigned -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/ChocolateyInstall.ps1'))
 
 	#Update Typing Trainer
 	$github = 'https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Typing'
-	$externalip = (Invoke-WebRequest -Uri 'http://ifconfig.me/ip' -UseBasicParsing).Content
-	$langleyip = '66.183.1.50'
-	$abbyip = '66.183.152.124'
+	# $externalip = (Invoke-WebRequest -Uri 'https://ip.aolccbc.com' -UseBasicParsing).Content
+	# $langleyip = '66.183.1.50'
+	# $abbyip = '207.216.117.232'
 
 	$cloudloc = $github + '/' + $campus + '/'
 
@@ -87,9 +83,9 @@ if ((Test-Path -LiteralPath "$chromex64bin") -eq $false) {
 }
 
 #Manage Software
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
+# Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
 
 #Set GPO like settings
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Set-GPOLikeThings.ps1'))
+# Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Set-GPOLikeThings.ps1'))
 
 # End Code
