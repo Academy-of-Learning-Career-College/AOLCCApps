@@ -1,5 +1,10 @@
+# To Run on a remote computer, run this command: 
+# Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://s.aolccbc.com/Run-VDOT.ps1'))
+
 $baseURL = "https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/VDOT_v3.zip"
-$targetDir = Join-Path $ENV:HOMEDRIVE 'vdot'
+
+
+$targetDir = 'c:\vdot'
 
 try {
     if(!(Test-Path $targetDir)){
