@@ -1,41 +1,54 @@
-# Array of URLs to download applications from
+# Domain name
+$d = "pub-ba40a2c327284ac787fcf7379eaa7030.r2.dev"
+
+# Application URLs and version numbers
+$a = "acmepro.v216.1.setup.exe"
+$t = "typingtrainersetup_v1.68.exe"
+$v = "vcredist_x86.exe"
 $appUrls = @(
-    "https://pub-ba40a2c327284ac787fcf7379eaa7030.r2.dev/acmepro.2011.setup.v216.1.exe",
-    "https://pub-ba40a2c327284ac787fcf7379eaa7030.r2.dev/typingtrainersetup_v1.68.exe"
+    "https://$d/$v",
+    "https://$d/$a",
+    "https://$d/$t"
 )
 
 # Download and install Visual C++ Redistributable 2010 x86
-$vcRedistUrl = "https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x86.exe"
-$vcRedistPath = "$($env:TEMP)\vcredist_x86.exe"
-Invoke-WebRequest -Uri $vcRedistUrl -OutFile $vcRedistPath
-Start-Process -FilePath $vcRedistPath -ArgumentList "/q" -Wait
-Remove-Item $vcRedistPath
+$vPath = Join-Path $env:TEMP $v
+Invoke-WebRequest -Uri $appUrls[0] -OutFile $vPath -UseBasicParsing
+$vcProcess = Start-Process -FilePath $vPath -ArgumentList "/q" -PassThru
+$vcProcess.WaitForExit()
+Remove-Item $vPath
 
 # Activate .NET 3.5 on Windows 10 or 11
 Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" -NoRestart
 
 # Download and install applications from URLs in $appUrls
-$appInstallArgs = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-"
-$appInstallPath = "$($env:TEMP)\app.exe"
-foreach ($appUrl in $appUrls) {
-    Invoke-WebRequest -Uri $appUrl -OutFile $appInstallPath
-    Start-Process -FilePath $appInstallPath -ArgumentList $appInstallArgs -Wait
-    Remove-Item $appInstallPath
+$args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-"
+foreach ($appUrl in $appUrls[1..$appUrls.Length]) {
+    $appPath = Join-Path $env:TEMP "app.exe"
+    Invoke-WebRequest -Uri $appUrl -OutFile $appPath -UseBasicParsing
+    $appProcess = Start-Process -FilePath $appPath -ArgumentList $args -PassThru
+    $appProcess.WaitForExit()
+    Remove-Item $appPath
 }
 
 # Create Internet shortcuts on the desktop
-$url1 = "https://my.aolcc.ca"
-$url2 = "https://s.aolccbc.com/att"
-$desktopPath = [Environment]::GetFolderPath("Desktop")
-$edgePath = (Get-AppxPackage -Name Microsoft.MicrosoftEdge).InstallLocation
-$shortcut1Path = "$desktopPath\My AOLCC.lnk"
-$shortcut2Path = "$desktopPath\AOLCCBC ATT.lnk"
-$shell = New-Object -ComObject WScript.Shell
-$shortcut1 = $shell.CreateShortcut($shortcut1Path)
-$shortcut1.TargetPath = "$edgePath\msedge.exe"
-$shortcut1.Arguments = $url1
-$shortcut1.Save()
-$shortcut2 = $shell.CreateShortcut($shortcut2Path)
-$shortcut2.TargetPath = "$edgePath\msedge.exe"
-$shortcut2.Arguments = $url2
-$shortcut2.Save()
+$u1 = "https://my.aolcc.ca"
+$u2 = "https://s.aolccbc.com/att"
+$dPath = [Environment]::GetFolderPath("Desktop")
+$ePath = (Get-AppxPackage -Name Microsoft.MicrosoftEdge).InstallLocation
+function Create-Shortcut {
+    param (
+        [string]$N,
+        [string]$T,
+        [string]$A
+    )
+
+    $p = Join-Path $dPath "$N.lnk"
+    $s = (New-Object -ComObject WScript.Shell).CreateShortcut($p)
+    $s.TargetPath = Join-Path $ePath "msedge.exe"
+    $s.Arguments = $A
+    $s.Save()
+}
+
+Create-Shortcut -N "My AOLCC" -T $u1 -A ""
+Create-Shortcut -N "AOLCCBC ATT" -T $u2 -A ""
