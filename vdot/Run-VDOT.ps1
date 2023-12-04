@@ -10,11 +10,11 @@ try {
     if(!(Test-Path $targetDir)){
         New-Item -ItemType Directory -Path $targetDir -Force
         # Set secure permissions for the directory
-        $acl = Get-Acl $targetDir
-        $acl.SetAccessRuleProtection($true, $false)
-        $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Users", "FullControl", "ContainerInherit, ObjectInherit", "None", "Allow")
-        $acl.AddAccessRule($rule)
-        Set-Acl -Path $targetDir -AclObject $acl
+        # $acl = Get-Acl $targetDir
+        # $acl.SetAccessRuleProtection($true, $false)
+        # $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Users", "FullControl", "ContainerInherit, ObjectInherit", "None", "Allow")
+        # $acl.AddAccessRule($rule)
+        # Set-Acl -Path $targetDir -AclObject $acl
     }
 
     $zipFile = Join-Path $targetDir 'VDOT_v3.zip'
