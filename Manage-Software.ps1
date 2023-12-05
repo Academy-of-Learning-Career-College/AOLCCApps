@@ -1,8 +1,5 @@
-function Send-TeamsMessage {param([string]$log,[string]$message = "No message provided",[string]$myTeamsWebHook = "https://aolccbc.webhook.office.com/webhookb2/1db6062d-7e55-421e-a2d9-d599692916e9@2cba7723-a119-4394-9d02-27aac2d1ed11/IncomingWebhook/e2ff12e2822541a9a5ac021d8767f0a2/ea32a7b2-5faf-4585-b298-fb1559f82dca",[string]$mentionedUser = [PSCustomObject] @{id = "mike@aolccbc.com"; name = "MikeRoss"});if ($message -eq "No message provide"){$message=''};$JSONBody = [PSCustomObject] [Ordered]@{"@type" = "MessageCard";"@context" = "http://schema.org/extensions";"summary" = "Hello from PowerShell!";"text" = "<at>$($mentionedUser.name)</at > $log $message";"mentions" = @($mentionedUser);};$TeamMessageBody = ConvertTo-Json $JSONBody -Depth 100;$parameters = @{"URI" = $myTeamsWebHook;"Method" = 'POST';"Body" = $TeamMessageBody;"ContentType" = 'application/json';};Invoke-RestMethod @parameters}
 #VERSIONS TO CHECK FOR
 $acme = '216.1'
-
-
 
 #Get-AppxPackage -Name Microsoft.MicrosoftOfficeHub -ErrorAction SilentlyContinue | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
 
@@ -22,7 +19,3 @@ cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /inpkey:B6KBT-DN94
 cscript "C:\Program Files\Microsoft Office\Office16\ospp.vbs" /act
 
 
-
-$message = "$ENV:COMPUTERNAME has ACME, office has been activated and lockdown browser should be installed"
-
-Send-TeamsMessage -message $message

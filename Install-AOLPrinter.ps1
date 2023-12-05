@@ -7,7 +7,7 @@ function Send-TeamsMessage {
     [string]$channel = "printer-installs",
     [string]$bearer = "1c8a95460002356bf509ff34ca60f35e"
     );
-
+# NOTE: Bearer Token is only good for posting messages to the board. Nothing else.
     if ($message -eq "No message provide"){$message=''};
 
     $JSONBody = @{
@@ -40,7 +40,7 @@ $subnet = "192.168"
 
 
 # Checking if the current machine is in Abbotsford or Langley based on IP
-switch ((Invoke-WebRequest https://ifconfig.me/ip).Content) {
+switch ((Invoke-WebRequest https://ip.aolccbc.com).Content) {
     $abbwan {
         # In Abbotsford
         # $regfile = "AbbotsfordCanonStudentDefaults.reg"
