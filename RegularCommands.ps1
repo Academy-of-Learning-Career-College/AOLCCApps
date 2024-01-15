@@ -63,24 +63,24 @@ if ($campus -ne 'OffSite') {
 	Invoke-WebRequest -Uri $typingbatsrc -OutFile $typingbatdest -Verbose -UseBasicParsing
 
 	#download the client installer to C:\fogtemp\fog.msi
-	$fogmsi = $scriptingdir + "fog.msi"
-	Invoke-WebRequest -URI "http://fogserver./fog/client/download.php?newclient" -UseBasicParsing -OutFile $fogmsi
+	#$fogmsi = $scriptingdir + "fog.msi"
+	#Invoke-WebRequest -URI "http://fogserver./fog/client/download.php?newclient" -UseBasicParsing -OutFile $fogmsi
 	#run the installer with msiexec and pass the command line args of /quiet /qn /norestart
-	Start-Process -FilePath msiexec -ArgumentList @('/i',$fogmsi,'/quiet','/qn','/norestart') -NoNewWindow -Wait;
+	#Start-Process -FilePath msiexec -ArgumentList @('/i',$fogmsi,'/quiet','/qn','/norestart') -NoNewWindow -Wait;
 
 };
 
 #Fix Chrome Shortcut issues
 
-$chromex86root = "c:\Program Files (x86)\Google\Chrome\Application"
-$chromex64bin = $chromex86root + "\chrome.exe"
-$chromex64 = "c:\Program Files\Google\Chrome\Application"
+#$chromex86root = "c:\Program Files (x86)\Google\Chrome\Application"
+#$chromex64bin = $chromex86root + "\chrome.exe"
+#$chromex64 = "c:\Program Files\Google\Chrome\Application"
 
-if ((Test-Path -LiteralPath "$chromex64bin") -eq $false) {
-	if ((Test-Path -LiteralPath "$chromex64bin") -eq $true) {
-		New-Item -ItemType SymbolicLink -Path "$chromex86root" -Target "$chromex64"
-	}
-}
+#if ((Test-Path -LiteralPath "$chromex64bin") -eq $false) {
+#	if ((Test-Path -LiteralPath "$chromex64bin") -eq $true) {
+#		New-Item -ItemType SymbolicLink -Path "$chromex86root" -Target "$chromex64"
+#	}
+#}
 
 #Manage Software
 # Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/fireball8931/AOLCCApps/master/Manage-Software.ps1'))
