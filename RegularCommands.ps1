@@ -63,10 +63,10 @@ if ($campus -ne 'OffSite') {
 	Invoke-WebRequest -Uri $typingbatsrc -OutFile $typingbatdest -Verbose -UseBasicParsing
 
  	#create shortcuts for typing trainer
-  	$sm = Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu'
+  	$sm = 'c:\ProgramData\Microsoft\Windows\Start Menu'
 $urlFile = Join-Path $sm 'Connect to TypingTrainer.url'
-$tt = Join-Path ${ENV:ProgramFiles(x86)} 'TypingTrainer\typingtrainer.exe'
-$sf = Join-Path $env:HOMEDRIVE 'scriptfiles\typingtrainer.bat'
+$tt = 'c:\Program Files (x86)\TypingTrainer\typingtrainer.exe'
+$sf = 'c:\scriptfiles\typingtrainer.bat'
 $batURI = "URL=file://" + $sf.Replace('\','/')
 $icoFile = "IconFile=" +  $tt
 
@@ -75,7 +75,7 @@ Set-Content -Path $urlFile -Value '[InternetShortcut]'
 Add-Content -Path $urlFile -Value $batURI
 Add-Content -Path $urlFile -Value $icoFile
 Add-Content -Path $urlFile -Value "IconIndex=0"
-Copy-Item -Path $urlFile -Destination (Join-Path $env:ALLUSERSPROFILE Desktop)
+Copy-Item -Path $urlFile -Destination "C:\Users\All Users\Desktop"
 
 	#download the client installer to C:\fogtemp\fog.msi
 	#$fogmsi = $scriptingdir + "fog.msi"
