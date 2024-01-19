@@ -1,0 +1,1 @@
+curl -X POST -H "Content-Type: text/html" --data-binary "@C:\ProgramData\TypingTrainer\type_results.html" "https://n8n.aolccbc.com/webhook/5d0245b1-67c6-4884-86d4-ca46f16ce67e"
