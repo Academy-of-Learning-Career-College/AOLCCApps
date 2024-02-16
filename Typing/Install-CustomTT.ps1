@@ -237,12 +237,12 @@ if (!(Test-Path (Join-Path $homeDrive "staffpc"))) {
         # Prompt the user for setup
         $setupAutoUpload = Read-Host "Do you want to setup auto uploading of typing results? (y/n)"
 
-if ($setupAutoUpload -eq "y") {
-    $schoolEmail = Read-Host "Please enter your school email address"
-    SetupTypingTrainerTasks -upn $schoolEmail -CheckWebhookUrl "https://n8n.aolccbc.com/webhook/6de9506e-2a0c-4cb5-9943-17f9bbbffcae" -UploadWebhookUrl "https://n8n.aolccbc.com/webhook/5d0245b1-67c6-4884-86d4-ca46f16ce67e"
-} else {
-    Write-Host "Auto upload setup skipped."
-}
+# if ($setupAutoUpload -eq "y") {
+#     $schoolEmail = Read-Host "Please enter your school email address"
+#     SetupTypingTrainerTasks -upn $schoolEmail -CheckWebhookUrl "https://n8n.aolccbc.com/webhook/6de9506e-2a0c-4cb5-9943-17f9bbbffcae" -UploadWebhookUrl "https://n8n.aolccbc.com/webhook/5d0245b1-67c6-4884-86d4-ca46f16ce67e"
+# } else {
+#     Write-Host "Auto upload setup skipped."
+# }
 
 
 
