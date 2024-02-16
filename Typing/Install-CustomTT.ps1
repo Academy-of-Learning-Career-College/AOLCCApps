@@ -296,9 +296,4 @@ if ($setupAutoUpload -eq "y") {
 
 #download and install preset db
 
-$dbContentBase64 = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academy-of-Learning-Career-College/AOLCCApps/master/Typing/wayne.txt" -UseBasicParsing
-
-
-$dbContentConverted = [System.Convert]::FromBase64String($dbContentBase64)
-
-Set-Content -Path "C:\programdata\TypingTrainer\typingtrainer.mdb" -Encoding Byte -Value $dbContentConverted
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academy-of-Learning-Career-College/AOLCCApps/master/Typing/typingtrainer.mdb" -UseBasicParsing -OutFile "C:\programdata\TypingTrainer\typingtrainer.mdb"
